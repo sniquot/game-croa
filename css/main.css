@@ -1,0 +1,64 @@
+@font-face {
+    font-family: '1942_report1942_report';
+    src: url('1942-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+table {
+    border-spacing: 8px;
+}
+
+.imgFrog {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cellMap.b0 {
+    background-image: url('../images/back0.png');
+}
+
+.cellMap.b1 {
+    background-image: url('../images/back1.png');
+}
+
+.cellMap.b2 {
+    background-image: url('../images/back2.png');
+}
+
+.cellMap {
+    width: 128px;
+    height: 128px;
+    border: 3px solid white;
+    border-radius: 4px;
+    box-shadow: 4px 4px 2px 1px rgba(0, 0, 0, .2);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+p {
+    /*font-family: 'MaSuperPolice','Courier New', Courier, monospace;*/
+    font-style: italic;
+    font-weight: normal;
+    text-decoration: none;
+    text-align: center;
+    color: blue;
+    opacity: 0.6;
+    border: 3px blue;
+    border-radius: 10px;
+    box-shadow: 6px 6px 6px black;
+    text-shadow: 1px 1px 2px black;
+}
+
+p:focus {
+    color: red;
+}
+
+.flottant {
+    float: left;
+}
+
+.flottantClear {
+    clear: both;
+}
