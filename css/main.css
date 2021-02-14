@@ -1,12 +1,13 @@
-@font-face {
-    font-family: '1942_report1942_report';
-    src: url('1942-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-}
-
 table {
     border-spacing: 8px;
+}
+
+.cellMap.inPath {
+    border: 3px dotted red;
+}
+
+.cellMap:hover {
+    border: 3px solid red;
 }
 
 .imgFrog {
@@ -27,38 +28,50 @@ table {
     background-image: url('../images/back2.png');
 }
 
+.mini {
+    opacity: 0.3;
+}
+
+.mini.active {
+    opacity: 1;
+}
+
+.one {
+    /*background-image: url('../images/frog_blue.png');
+    background-repeat: no-repeat;*/
+    vertical-align: top;
+    width: 64px;
+}
+
+.two {
+    /*background-image: url('../images/frog_pink.png');
+    background-repeat: no-repeat;*/
+    /*text-align: center;*/
+    height: 64px;
+}
+
+.three {
+    /*background-image: url('../images/frog_red.png');
+    background-repeat: no-repeat;
+    background-position: bottom;*/
+    vertical-align: bottom;
+    width: 64px;
+}
+
+.four {
+    /*background-image: url('../images/frog_green.png');
+    background-repeat: no-repeat;
+    background-position: right;*/
+    text-align: right;
+    height: 64px;
+}
+
 .cellMap {
-    width: 128px;
-    height: 128px;
+    width: 132px;
+    height: 132px;
     border: 3px solid white;
     border-radius: 4px;
     box-shadow: 4px 4px 2px 1px rgba(0, 0, 0, .2);
     background-repeat: no-repeat;
     background-position: center;
-}
-
-p {
-    /*font-family: 'MaSuperPolice','Courier New', Courier, monospace;*/
-    font-style: italic;
-    font-weight: normal;
-    text-decoration: none;
-    text-align: center;
-    color: blue;
-    opacity: 0.6;
-    border: 3px blue;
-    border-radius: 10px;
-    box-shadow: 6px 6px 6px black;
-    text-shadow: 1px 1px 2px black;
-}
-
-p:focus {
-    color: red;
-}
-
-.flottant {
-    float: left;
-}
-
-.flottantClear {
-    clear: both;
 }

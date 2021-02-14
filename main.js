@@ -1,25 +1,97 @@
-const mapHeight = 8;
-const mapWidth = 8;
-const mapSize = mapHeight * mapWidth;
-
-const map = [];
 const frogs = [];
+const players = [];
+const males = [];
+//const colors = ['blue', 'red', 'green', 'pink'];
 
-let currentCell = null;
+var Map = {
+    mapHeight: 8,
+    mapWidth: 8,
+    mapSize: this.mapHeight * this.mapWidth,
+    data: []
+};
 
-let html;
+var Game = {
+    turn: 0,
+    moves: 0,
+    kills: 0,
+    currentCell: null,
+    currentPlayer: 0,
+    nbPlayer: 2,
+    Map : {
+        mapHeight: 8,
+        mapWidth: 8,
+        mapSize: this.mapHeight * this.mapWidth,
+        data: []
+    }
+};
 
-resetMap();
+class Frog {
+    constructor() {
+        this.x = 0;
+        this.y = 0;
+        this.player = 0;
+        this.moves = 0;
+        this.kills = 0;
+        this.isQueen = false;
+        this.isMud = false
+    }
+};
 
-html = makeTable(map);
-let element = document.getElementById("map");
-element.insertAdjacentHTML("afterbegin", html);
+class Player {
+    constructor() {
+        this.frogs = 4;
+        this.moves = 0;
+        this.color = ``;
+        this.kills = 0;
+    }
+};
 
-cells = initCells();
+initGame(Game.nbPlayer);
 
-initPlayers(2);
-drawFrogs(cells);
+function initGame(ply) {
+    console.log(frogs);
+    shuffleArray(colors);
 
+    initPlayers(ply);
+    initFrogs(ply);
+    initMales();
+    console.log(players);
+
+    initMap();
+    console.log(frogs);    
+}
+
+/*
+ *
+ */
+function initMap() {
+    resetMap();
+    drawMap();
+}
+
+/*
+ *
+ */
+function drawMap() {
+    let html = makeTable(Map.data);
+    let element = document.getElementById("map");
+    element.textContent = ``;
+    element.insertAdjacentHTML("afterbegin", html);
+    cells = initCells();
+    drawFrogs(cells);
+}
+
+/*
+ *
+ */
+function initMales() {
+    for (let i = 0; i < Game.nbPlayer; i++) {
+        males[i] = [];
+        for (let x = 0; x < 6; x++) {
+            males[i][x] = false;
+        }
+    }
+}
 
 /*
  *
@@ -27,84 +99,103 @@ drawFrogs(cells);
 function checkMove(posBefore, posAfter) {
     const move = [9, 8, 7, 1];
     var diff = Math.abs(posAfter - posBefore);
+    var bMove = (move.indexOf(diff) >= 0) ? true : false;
+    if (!bMove) {
+        return false;
+    }
 
-    return (move.indexOf(diff) >= 0) ? true : false;
+    var posBx = (posBefore % Map.mapWidth);
+    var posAx = (posAfter % Map.mapHeight);
+    var diffx = Math.abs(posBx - posAx);
+    if (diffx > 1)
+        return false;
+
+    return true;
 }
+
 /*
  *
  */
 function showTile(cell) {
+    var sType;
+    if (Map.data[cell.frog].visible) {
+        if (Map.data[cell.frog].type === 5) {
+            sType = 'type' + (Map.data[cell.frog].type) + (Map.data[cell.frog].data)
+        } else {
+            sType = 'type' + (Map.data[cell.frog].type)
+        }
+        cell.style.backgroundImage = "url('images/" + sType + ".png')";
 
-    if (map[cell.frog].visible) {
-        cell.style.backgroundImage = "url('images/type" + (map[cell.frog].type) + ".png')";
     } else {
         cell.style.backgroundImage = "";
     }
 }
+
 /*
  *
  */
 function drawPath(cell, bVisible) {
-    for (let i = 0; i < mapSize; i++) {
-        if (checkMove(cell.frog, i)){
-			let  cellDropable = document.getElementById("m" + i);
-			if (frogs[cell.frog] != frogs[cellDropable.frog]){
-				if ()
-				cellDropable.style.border = "3px dotted red";
-			}
-		}
-	}
+    var min = cell.frog - 10;
+    var max = cell.frog + 10;
+
+    if (min < 0)
+        min = 0;
+    if (max > Map.mapSize)
+        max = Map.mapSize;
+
+    for (let i = min; i < max; i++) {
+        if (checkMove(cell.frog, i)) {
+            let cellDropable = document.getElementById("m" + i);
+            if (bVisible) {
+                // Ignore la case d'origine
+                if (frogs[cell.frog] !== frogs[cellDropable.frog]) {
+                    // Ignore les cases qui sont déjà occupées
+                    if (frogs[cellDropable.frog] == null)
+                        cellDropable.classList.add("inPath");
+                }
+            } else {
+                cellDropable.classList.remove("inPath");
+            }
+        }
+    }
 }
+
 /*
  *
  */
 function initCells() {
-    let table = document.getElementsByTagName("table")[0];
-    let cells = table.getElementsByTagName("td");
+    let cells = document.getElementsByClassName("cellMap");
 
     for (let i = 0; i < cells.length; i++) {
         let cell = cells[i];
         cell.frog = i;
 
-        cell.ondragenter = function(event) {
-            console.log('this.frog:' + this.frog);
-            console.log('currentCell:' + currentCell.frog);
-            if (event.target.classList.contains("cellMap"))
-                if (this.frog != currentCell.frog)
-                    if (frogs[this.frog] != frogs[currentCell.frog])
-                        if (checkMove(currentCell.frog, this.frog))
-                            event.target.style.border = "3px solid red";
-
-        }
-        cell.ondragleave = function(event) {
-            if (event.target.classList.contains("cellMap")) {
-                event.target.style.border = "";
-            }
-        }
-        cell.ondragover = function(event) {
-            if (event.target.classList.contains("cellMap"))
-                if (this.frog != currentCell.frog)
-                    if (frogs[this.frog] != frogs[currentCell.frog])
-                        if (checkMove(currentCell.frog, this.frog))
-                            event.preventDefault();
-        }
-        cell.ondrop = function(event) {
-            if (event.target.classList.contains("cellMap")) {
-                event.target.style.border = "";
-                frogs[this.frog] = frogs[currentCell.frog];
-                frogs[currentCell.frog] = 0;
-                deleteFrog(currentCell);
-                addFrog(event.target);
-                map[currentCell.frog].visible = false;
-                map[this.frog].visible = true;
-                showTile(event.target);
-                showTile(currentCell);
-
-
-            }
-        }
+        cell.ondragover = dragoverHandler;
+        cell.ondrop = dropHandler;
     }
     return cells;
+}
+
+/*
+ *
+ */
+function dragoverHandler(event) {
+    if (this.classList.contains("cellMap"))
+        if (this.frog !== Game.currentCell.frog)
+            //if (frogs[this.frog] !== frogs[currentCell.frog])
+            if (frogs[this.frog] == null)
+                if (checkMove(Game.currentCell.frog, this.frog))
+                    event.preventDefault();
+}
+
+/*
+ *
+ */
+function dropHandler(event) {
+    if (this.classList.contains("cellMap")) {
+        moveFrog(Game.currentCell, this);
+        actionFrog(this);
+    }
 }
 
 /*
@@ -118,6 +209,24 @@ function drawFrogs(cells) {
         addFrog(cell);
     }
 }
+
+/*
+ *
+ */
+function moveFrog(beforeCell, afterCell) {
+    players[Game.currentPlayer].moves++;
+
+    deleteFrog(beforeCell);
+    frogs[afterCell.frog] = frogs[beforeCell.frog];
+    frogs[beforeCell.frog] = null;
+    Map.data[beforeCell.frog].visible = false;
+    showTile(beforeCell);
+
+    addFrog(afterCell);
+    Map.data[afterCell.frog].visible = true;
+    showTile(afterCell);
+}
+
 /*
  *
  */
@@ -126,44 +235,39 @@ function deleteFrog(cell) {
     if (element)
         cell.removeChild(element);
 }
+
 /*
  *
  */
 function addFrog(cell) {
-    if (frogs[cell.frog] != 0) {
+    if (frogs[cell.frog] !== null) {
         var img = document.createElement('img');
         var sColor = '';
 
-        switch (frogs[cell.frog]) {
-            case 1:
-                sColor = 'frog_blue.png';
-                break;
-            case 2:
-                sColor = 'frog_pink.png';
-                break;
-            case 3:
-                sColor = 'frog_red.png';
-                break;
-            case 4:
-                sColor = 'frog_green.png';
-                break;
-        }
+        sPrefix = (frogs[cell.frog].isQueen) ? 'queen_' : 'frog_';
+        sColor = sPrefix + `${colors[frogs[cell.frog].player]}.png`;
+        console.log(sColor);
 
         img.src = 'images/' + sColor;
         img.className = 'imgFrog';
         img.draggable = true;
         img.frog = cell.frog;
 
-        img.ondragstart = function(event) {
+        img.ondragstart = function (event) {
             console.log('start:' + this.frog);
-            currentCell = this.parentNode;
-			drawPath(currentCell, true);
-        }
 
-        img.ondragend = function(event) {
-			drawPath(currentCell, false);
-        }
-		
+            //Game.currentPlayer = frogs[this.frog].player;
+            if (Game.currentPlayer == frogs[this.frog].player) {
+                Game.currentCell = this.parentNode;
+                drawPath(Game.currentCell, true);
+            }
+
+        };
+
+        img.ondragend = function (event) {
+            drawPath(Game.currentCell, false);
+        };
+
         cell.appendChild(img);
     }
 }
@@ -183,120 +287,177 @@ function shuffleArray(array) {
 /*
  *
  */
+function drawMale(ply) {
+    let image = ``;
+    let cssclass = ``;
+
+    for (let i = 0; i < 4; i++) {
+        image += `<img src="./images/frog_${players[ply].color}.png" class="extra${players[ply].color}" alt="">`;
+    }
+
+    for (let i = 0; i < 6; i++) {
+        if (males[players[i]]) { cssclass = `active`; }
+        image += `<img src="./images/mini5${i}.png" id="${players[ply].color + i}" class="mini ${cssclass}" alt="">`;
+    }
+
+    return image;
+}
+
+/*
+ *
+ */
 function makeTable(array) {
     let table = "";
     var posY = 0;
 
-    for (let y = 0; y < mapHeight; y++) {
+    table += '<tr><td class="corner"></td><td id="four" class="four" colspan="8">' + ((Game.nbPlayer == 4) ? drawMale(3) : '') + '</td><td class="corner"></td></tr>';
+
+    for (let y = 0; y < Map.mapHeight; y++) {
         posY = y * 8;
         table += "<tr>";
-        for (let x = 0; x < mapWidth; x++) {
+        if (y == 0) { table += `<td id="one" class="one" rowspan="${Map.mapHeight}">` + drawMale(0) + `</td>`; }
+        for (let x = 0; x < Map.mapWidth; x++) {
             table += `<td id=\"m${posY + x}\" class=\"cellMap b${array[posY + x].back}\"></td>`;
         }
+        if (y == 0) { table += `<td id="three" class="three" rowspan="${Map.mapHeight}">` + ((Game.nbPlayer == 2) ? drawMale(1) : drawMale(2)) + `</td>`; }
         table += "</tr>";
     }
+
+    table += '<tr><td class="corner"></td><td id="two" class="two" colspan="8">' + ((Game.nbPlayer == 3 || Game.nbPlayer == 4) ? drawMale(1) : '') + '</td><td class="corner"></td></tr>';
+
     return table;
 }
-
 /*
  *
  */
-function initPlayers(nbPlayer) {
-    console.log("Players : " + nbPlayer);
-    resetPlayers();
+function initPlayers(nbPly) {
+    Game.nbPlayer = nbPly;
 
-    switch (nbPlayer) {
-        case 2:
-            // Top Left corner
-            setFrog(0, 0, 1);
-            setFrog(0, 1, 1);
-            setFrog(1, 0, 1);
+    for (let i = 0; i < nbPly; i++) {
+        players[i] = new Player;
+        players[i].color = colors[i];
+    }
+}
+/*
+ *
+ */
+function initFrogs(nbPly) {
+    Game.nbPlayer = nbPly;
 
-            // Bottom Right corner
-            setFrog(7, 7, 2);
-            setFrog(6, 7, 2);
-            setFrog(7, 6, 2);
-
-            break;
+    resetFrogs();
+    switch (Game.nbPlayer) {
         case 3:
-            // Top Left corner
-            setFrog(0, 0, 1);
-            setFrog(0, 1, 1);
-            setFrog(1, 0, 1);
-
-            // Bottom Left corner
-            setFrog(0, 6, 2);
-            setFrog(0, 7, 2);
-            setFrog(1, 7, 2);
-
-            // Middle Right
-            setFrog(6, 3, 3);
-            setFrog(7, 4, 3);
-            setFrog(6, 5, 3);
-
+            initFrog('topLeft', 0);
+            initFrog('botLeft', 1);
+            initFrog('midRight', 2);
             break;
         case 4:
-            // Top Left corner
-            setFrog(0, 0, 1);
-            setFrog(0, 1, 1);
-            setFrog(1, 0, 1);
-
-            // Top Right corner
-            setFrog(6, 0, 4);
-            setFrog(7, 0, 4);
-            setFrog(7, 1, 4);
-
-            // Bottom Left corner
-            setFrog(0, 6, 2);
-            setFrog(0, 7, 2);
-            setFrog(1, 7, 2);
-
-            // Bottom Right corner
-            setFrog(7, 7, 3);
-            setFrog(6, 7, 3);
-            setFrog(7, 6, 3);
+            initFrog('topLeft', 0);
+            initFrog('topRight', 3);
+            initFrog('botLeft', 1);
+            initFrog('botRight', 2);
             break;
-
+        default:
+            initFrog('topLeft', 0);
+            initFrog('botRight', 1);
     }
-    drawFrogs(cells);
 }
+
 /*
  *
  */
-function setMap(x, y, value) {
-    if (x >= 0 && x < mapWidth && y >= 0 && y <= mapHeight) {
-        map[(y * mapHeight + x)] = value;
-    }
+function initFrog(pos, ply) {
+    for (let i = 0; i < 3; i++) {
+        let frg = new Frog;
 
+        frg.x = playerConfig[pos][i][0] % Map.mapWidth;
+        frg.y = Math.trunc(playerConfig[pos][i][0] / Map.mapHeight);
+        frg.player = ply;
+        frg.isQueen = (playerConfig[pos][i][1] == 1) ? true : false;
+
+        setFrog(frg);
+    }
 }
+
 /*
  *
  */
-function setFrog(x, y, value) {
-    if (x >= 0 && x < mapWidth && y >= 0 && y <= mapHeight) {
-        frogs[(y * mapHeight + x)] = value;
+function setFrog(frg) {
+    if (frg.x >= 0 && frg.x < Map.mapWidth && frg.y >= 0 && frg.y <= Map.mapHeight) {
+        frogs[(frg.y * Map.mapHeight + frg.x)] = frg;
     }
 
 }
+
 /*
  *
  */
-function resetPlayers() {
-    for (y = 0; y < mapHeight; y++) {
-        for (x = 0; x < mapWidth; x++) {
-            setFrog(x, y, 0);
+function resetFrogs() {
+    for (let y = 0; y < Map.mapHeight; y++) {
+        for (let x = 0; x < Map.mapWidth; x++) {
+            frogs[(y * Map.mapHeight + x)] = null;
         }
     }
 }
+
 /*
  *
  */
 function resetMap() {
-    i = 0;
-    for (y = 0; y < mapHeight; y++) {
-        for (x = 0; x < mapWidth; x++) {
-            setMap(x, y, dalles[i++]);
+    let i = 0;
+    for (let y = 0; y < Map.mapHeight; y++) {
+        for (let x = 0; x < Map.mapWidth; x++) {
+            Map.data[(y * Map.mapHeight + x)] = dalles[i++];
         }
     }
-    shuffleArray(map);
+    shuffleArray(Map.data);
+}
+
+/*
+ *
+ */
+function actionFrog(cell) {
+    let type = Map.data[cell.frog].type;
+    Game.turn++;
+
+    switch (type) {
+        case 0: // Nenuphar
+            break;
+        case 1: // Mosquito
+            break;
+        case 2: // Mud
+            break;
+        case 3: // Pike
+            deleteFrog(cell);
+            players[Game.currentPlayer].frogs--;
+            //map[cell.frog].visible = false;
+            //showTile(cell);
+            break;
+        case 4: // Reed
+            break;
+        case 5: // Male
+            if (!males[Game.currentPlayer][Map.data[cell.frog].data]) {
+                males[Game.currentPlayer][Map.data[cell.frog].data] = true;
+                let element = document.getElementById(colors[Game.currentPlayer] + Map.data[cell.frog].data);
+                element.classList.add("active");
+                addFrog(cell);
+            }
+            break;
+        case 6: // Log
+            break;
+
+        default:
+            break;
+    }
+
+    nextPlayer();
+
+}
+
+/*
+ *
+ */
+
+function nextPlayer() {
+    Game.currentPlayer = ++Game.currentPlayer % Game.nbPlayer;
 }
