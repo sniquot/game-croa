@@ -1,14 +1,4 @@
 const frogs = [];
-const players = [];
-const males = [];
-//const colors = ['blue', 'red', 'green', 'pink'];
-
-var Map = {
-    mapHeight: 8,
-    mapWidth: 8,
-    mapSize: this.mapHeight * this.mapWidth,
-    data: []
-};
 
 var Game = {
     turn: 0,
@@ -17,12 +7,13 @@ var Game = {
     currentCell: null,
     currentPlayer: 0,
     nbPlayer: 2,
-    Map : {
+    map: {
         mapHeight: 8,
         mapWidth: 8,
         mapSize: this.mapHeight * this.mapWidth,
         data: []
-    }
+    },
+    players: []
 };
 
 class Frog {
@@ -43,22 +34,28 @@ class Player {
         this.moves = 0;
         this.color = ``;
         this.kills = 0;
+        this.frogs = [];
+        this.males = [];
     }
 };
 
 initGame(Game.nbPlayer);
 
 function initGame(ply) {
-    console.log(frogs);
+    
+    Game.nbPlayer = ply;
+    Game.turn = 0;
+    Game.moves = 0;
+    Game.kills = 0;
+    Game.currentCell = null;
+    Game.currentPlayer = 0;
+
     shuffleArray(colors);
 
     initPlayers(ply);
     initFrogs(ply);
     initMales();
-    console.log(players);
-
     initMap();
-    console.log(frogs);    
 }
 
 /*
@@ -73,7 +70,7 @@ function initMap() {
  *
  */
 function drawMap() {
-    let html = makeTable(Map.data);
+    let html = makeTable(Game.map.data);
     let element = document.getElementById("map");
     element.textContent = ``;
     element.insertAdjacentHTML("afterbegin", html);
@@ -86,9 +83,10 @@ function drawMap() {
  */
 function initMales() {
     for (let i = 0; i < Game.nbPlayer; i++) {
-        males[i] = [];
+        //males[i] = [];
         for (let x = 0; x < 6; x++) {
-            males[i][x] = false;
+            Game.players[i].males[x] = false;
+            //males[i][x] = false;
         }
     }
 }
@@ -104,8 +102,8 @@ function checkMove(posBefore, posAfter) {
         return false;
     }
 
-    var posBx = (posBefore % Map.mapWidth);
-    var posAx = (posAfter % Map.mapHeight);
+    var posBx = (posBefore % Game.map.mapWidth);
+    var posAx = (posAfter % Game.map.mapHeight);
     var diffx = Math.abs(posBx - posAx);
     if (diffx > 1)
         return false;
@@ -118,11 +116,11 @@ function checkMove(posBefore, posAfter) {
  */
 function showTile(cell) {
     var sType;
-    if (Map.data[cell.frog].visible) {
-        if (Map.data[cell.frog].type === 5) {
-            sType = 'type' + (Map.data[cell.frog].type) + (Map.data[cell.frog].data)
+    if (Game.map.data[cell.frog].visible) {
+        if (Game.map.data[cell.frog].type === 5) {
+            sType = 'type' + (Game.map.data[cell.frog].type) + (Game.map.data[cell.frog].data)
         } else {
-            sType = 'type' + (Map.data[cell.frog].type)
+            sType = 'type' + (Game.map.data[cell.frog].type)
         }
         cell.style.backgroundImage = "url('images/" + sType + ".png')";
 
@@ -140,8 +138,8 @@ function drawPath(cell, bVisible) {
 
     if (min < 0)
         min = 0;
-    if (max > Map.mapSize)
-        max = Map.mapSize;
+    if (max > Game.map.mapSize)
+        max = Game.map.mapSize;
 
     for (let i = min; i < max; i++) {
         if (checkMove(cell.frog, i)) {
@@ -181,11 +179,12 @@ function initCells() {
  */
 function dragoverHandler(event) {
     if (this.classList.contains("cellMap"))
-        if (this.frog !== Game.currentCell.frog)
-            //if (frogs[this.frog] !== frogs[currentCell.frog])
-            if (frogs[this.frog] == null)
-                if (checkMove(Game.currentCell.frog, this.frog))
-                    event.preventDefault();
+        if (frogs[Game.currentCell.frog].player == Game.currentPlayer)
+            if (this.frog !== Game.currentCell.frog)
+                //if (frogs[this.frog] !== frogs[currentCell.frog])
+                if (frogs[this.frog] == null)
+                    if (checkMove(Game.currentCell.frog, this.frog))
+                        event.preventDefault();
 }
 
 /*
@@ -214,16 +213,16 @@ function drawFrogs(cells) {
  *
  */
 function moveFrog(beforeCell, afterCell) {
-    players[Game.currentPlayer].moves++;
+    Game.players[Game.currentPlayer].moves++;
 
     deleteFrog(beforeCell);
     frogs[afterCell.frog] = frogs[beforeCell.frog];
     frogs[beforeCell.frog] = null;
-    Map.data[beforeCell.frog].visible = false;
+    Game.map.data[beforeCell.frog].visible = false;
     showTile(beforeCell);
 
     addFrog(afterCell);
-    Map.data[afterCell.frog].visible = true;
+    Game.map.data[afterCell.frog].visible = true;
     showTile(afterCell);
 }
 
@@ -292,12 +291,12 @@ function drawMale(ply) {
     let cssclass = ``;
 
     for (let i = 0; i < 4; i++) {
-        image += `<img src="./images/frog_${players[ply].color}.png" class="extra${players[ply].color}" alt="">`;
+        image += `<img src="./images/frog_${Game.players[ply].color}.png" class="extra${Game.players[ply].color}" alt="">`;
     }
 
     for (let i = 0; i < 6; i++) {
-        if (males[players[i]]) { cssclass = `active`; }
-        image += `<img src="./images/mini5${i}.png" id="${players[ply].color + i}" class="mini ${cssclass}" alt="">`;
+        if (Game.players[ply].males[i]) { cssclass = `active`; }
+        image += `<img src="./images/mini5${i}.png" id="${Game.players[ply].color + i}" class="mini ${cssclass}" alt="">`;
     }
 
     return image;
@@ -312,14 +311,14 @@ function makeTable(array) {
 
     table += '<tr><td class="corner"></td><td id="four" class="four" colspan="8">' + ((Game.nbPlayer == 4) ? drawMale(3) : '') + '</td><td class="corner"></td></tr>';
 
-    for (let y = 0; y < Map.mapHeight; y++) {
+    for (let y = 0; y < Game.map.mapHeight; y++) {
         posY = y * 8;
         table += "<tr>";
-        if (y == 0) { table += `<td id="one" class="one" rowspan="${Map.mapHeight}">` + drawMale(0) + `</td>`; }
-        for (let x = 0; x < Map.mapWidth; x++) {
+        if (y == 0) { table += `<td id="one" class="one" rowspan="${Game.map.mapHeight}">` + drawMale(0) + `</td>`; }
+        for (let x = 0; x < Game.map.mapWidth; x++) {
             table += `<td id=\"m${posY + x}\" class=\"cellMap b${array[posY + x].back}\"></td>`;
         }
-        if (y == 0) { table += `<td id="three" class="three" rowspan="${Map.mapHeight}">` + ((Game.nbPlayer == 2) ? drawMale(1) : drawMale(2)) + `</td>`; }
+        if (y == 0) { table += `<td id="three" class="three" rowspan="${Game.map.mapHeight}">` + ((Game.nbPlayer == 2) ? drawMale(1) : drawMale(2)) + `</td>`; }
         table += "</tr>";
     }
 
@@ -331,11 +330,9 @@ function makeTable(array) {
  *
  */
 function initPlayers(nbPly) {
-    Game.nbPlayer = nbPly;
-
     for (let i = 0; i < nbPly; i++) {
-        players[i] = new Player;
-        players[i].color = colors[i];
+        Game.players[i] = new Player;
+        Game.players[i].color = colors[i];
     }
 }
 /*
@@ -370,8 +367,8 @@ function initFrog(pos, ply) {
     for (let i = 0; i < 3; i++) {
         let frg = new Frog;
 
-        frg.x = playerConfig[pos][i][0] % Map.mapWidth;
-        frg.y = Math.trunc(playerConfig[pos][i][0] / Map.mapHeight);
+        frg.x = playerConfig[pos][i][0] % Game.map.mapWidth;
+        frg.y = Math.trunc(playerConfig[pos][i][0] / Game.map.mapHeight);
         frg.player = ply;
         frg.isQueen = (playerConfig[pos][i][1] == 1) ? true : false;
 
@@ -383,8 +380,8 @@ function initFrog(pos, ply) {
  *
  */
 function setFrog(frg) {
-    if (frg.x >= 0 && frg.x < Map.mapWidth && frg.y >= 0 && frg.y <= Map.mapHeight) {
-        frogs[(frg.y * Map.mapHeight + frg.x)] = frg;
+    if (frg.x >= 0 && frg.x < Game.map.mapWidth && frg.y >= 0 && frg.y <= Game.map.mapHeight) {
+        frogs[(frg.y * Game.map.mapHeight + frg.x)] = frg;
     }
 
 }
@@ -393,9 +390,9 @@ function setFrog(frg) {
  *
  */
 function resetFrogs() {
-    for (let y = 0; y < Map.mapHeight; y++) {
-        for (let x = 0; x < Map.mapWidth; x++) {
-            frogs[(y * Map.mapHeight + x)] = null;
+    for (let y = 0; y < Game.map.mapHeight; y++) {
+        for (let x = 0; x < Game.map.mapWidth; x++) {
+            frogs[(y * Game.map.mapHeight + x)] = null;
         }
     }
 }
@@ -405,19 +402,19 @@ function resetFrogs() {
  */
 function resetMap() {
     let i = 0;
-    for (let y = 0; y < Map.mapHeight; y++) {
-        for (let x = 0; x < Map.mapWidth; x++) {
-            Map.data[(y * Map.mapHeight + x)] = dalles[i++];
+    for (let y = 0; y < Game.map.mapHeight; y++) {
+        for (let x = 0; x < Game.map.mapWidth; x++) {
+            Game.map.data[(y * Game.map.mapHeight + x)] = dalles[i++];
         }
     }
-    shuffleArray(Map.data);
+    shuffleArray(Game.map.data);
 }
 
 /*
  *
  */
 function actionFrog(cell) {
-    let type = Map.data[cell.frog].type;
+    let type = Game.map.data[cell.frog].type;
     Game.turn++;
 
     switch (type) {
@@ -429,16 +426,18 @@ function actionFrog(cell) {
             break;
         case 3: // Pike
             deleteFrog(cell);
-            players[Game.currentPlayer].frogs--;
+            Game.players[Game.currentPlayer].frogs--;
             //map[cell.frog].visible = false;
             //showTile(cell);
             break;
         case 4: // Reed
             break;
         case 5: // Male
-            if (!males[Game.currentPlayer][Map.data[cell.frog].data]) {
-                males[Game.currentPlayer][Map.data[cell.frog].data] = true;
-                let element = document.getElementById(colors[Game.currentPlayer] + Map.data[cell.frog].data);
+            // (!males[Game.currentPlayer][Game.map.data[cell.frog].data])
+
+            if (!Game.players[Game.currentPlayer].males[Game.map.data[cell.frog].data]) {
+                Game.players[Game.currentPlayer].males[Game.map.data[cell.frog].data] = true;
+                let element = document.getElementById(colors[Game.currentPlayer] + Game.map.data[cell.frog].data);
                 element.classList.add("active");
                 addFrog(cell);
             }
