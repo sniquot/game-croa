@@ -1,47 +1,28 @@
-
-const frogs = [];
-
-/*
- 
-class Game {
-    constructor(ply) {
-        this.turn = 0,
-            this.moves = 0,
-            this.kills = 0,
-            this.currentCell = null,
-            this.currentPlayer = 0,
-            this.nbPlayer = ply,
-            this.map = {
-                mapHeight: 8,
-                mapWidth: 8,
-                mapSize: this.mapHeight * this.mapWidth,
-                data: []
-            },
-            this.players = []
-    }
-};
- 
- */
 var game;
 
-var Game = {
-    turn: 0,
-    moves: 0,
-    kills: 0,
-    currentCell: null,
-    lastCell: null,
-    nenuphar: false,
-    currentPlayer: 0,
-    nbPlayer: 2,
-    nbFrogs: 0,
-    memory: false,
-    map: {
-        mapHeight: 8,
-        mapWidth: 8,
-        mapSize: 64,
-        data: []
-    },
-    players: []
+class Game {
+    constructor(ply) {
+        this.debug = true;
+        this.turn = 0;
+        this.moves = 0;
+        this.kills = 0;
+        this.currentCell = null;
+        this.dragCell = null;
+        this.lastCell = null;
+        this.nenuphar = false;
+        this.currentPlayer = 0;
+        this.nbPlayer = 2;
+        this.nbFrogs = 0;
+        this.memory = false;
+        this.map = {
+            mapHeight: 8,
+            mapWidth: 8,
+            mapSize: 64,
+            data: []
+        };
+        this.players = [];
+        this.frogs = [];
+    };
 };
 
 class Frog {
@@ -63,24 +44,14 @@ class Player {
         this.moves = 0;
         this.color = ``;
         this.kills = 0;
-        //this.frogs = [];
         this.males = [];
     }
 };
 
-initGame(Game.nbPlayer);
+initGame(2);
 
 function initGame(ply) {
-    Game.nbPlayer = ply;
-    Game.turn = 0;
-    Game.moves = 0;
-    Game.kills = 0;
-    Game.lastCell = null;
-    Game.currentCell = null;
-    Game.currentPlayer = 0;
-    Game.nenuphar = false;
-    Game.memory = false;
-    Game.nbFrogs = 0;
+    game = new Game(ply);
 
     initPlayers(ply);
     initFrogs(ply);
@@ -102,7 +73,7 @@ function initMap() {
  *
  */
 function drawMap() {
-    let html = makeTable(Game.map.data);
+    let html = makeTable(game.map.data);
     let element = document.getElementById("map");
     element.textContent = ``;
     element.insertAdjacentHTML("afterbegin", html);
@@ -114,9 +85,9 @@ function drawMap() {
  *
  */
 function initMales() {
-    for (let i = 0; i < Game.nbPlayer; i++) {
+    for (let i = 0; i < game.nbPlayer; i++) {
         for (let x = 0; x < 6; x++) {
-            Game.players[i].males[x] = false;
+            game.players[i].males[x] = false;
         }
     }
 }
@@ -132,8 +103,8 @@ function checkMove(posBefore, posAfter) {
         return false;
     }
 
-    var posBx = (posBefore % Game.map.mapWidth);
-    var posAx = (posAfter % Game.map.mapHeight);
+    var posBx = (posBefore % game.map.mapWidth);
+    var posAx = (posAfter % game.map.mapHeight);
     var diffx = Math.abs(posBx - posAx);
     if (diffx > 1)
         return false;
@@ -147,15 +118,15 @@ function checkMove(posBefore, posAfter) {
 function showTile(cell, bVisible) {
     var sType;
 
-    if (!Game.memory && bVisible == false)
+    if (!game.memory && bVisible == false)
         return;
 
-    Game.map.data[cell.frog].visible = bVisible;
-    if (Game.map.data[cell.frog].visible) {
-        if (Game.map.data[cell.frog].type === 5) {
-            sType = 'type' + (Game.map.data[cell.frog].type) + (Game.map.data[cell.frog].data);
+    game.map.data[cell.frog].visible = bVisible;
+    if (game.map.data[cell.frog].visible) {
+        if (game.map.data[cell.frog].type === 5) {
+            sType = 'type' + (game.map.data[cell.frog].type) + (game.map.data[cell.frog].data);
         } else {
-            sType = 'type' + (Game.map.data[cell.frog].type);
+            sType = 'type' + (game.map.data[cell.frog].type);
         }
         cell.style.backgroundImage = "url('images/" + sType + ".png')";
 
@@ -167,29 +138,51 @@ function showTile(cell, bVisible) {
 /*
  *
  */
+function lastPos(pos) {
+    if (game.nenuphar) {
+        if (pos == game.lastCell.frog)
+            return true;
+    }
+    return false;
+}
+
+/*
+ *
+ */
 function drawPath(cell, bVisible) {
+    console.log('drawPath : ' + cell.frog);
     var min = cell.frog - 10;
     var max = cell.frog + 10;
+    let count = 0;
 
     if (min < 0)
         min = 0;
-    if (max > Game.map.mapSize)
-        max = Game.map.mapSize;
+    if (max > game.map.mapSize)
+        max = game.map.mapSize;
 
     for (let i = min; i < max; i++) {
         if (checkMove(cell.frog, i)) {
             let cellDropable = document.getElementById("m" + i);
-            if (bVisible) {
+            if (cellDropable && bVisible) {
                 // Ignore la case d'origine
-                if (frogs[cell.frog] !== frogs[cellDropable.frog]) {
-                    // Ignore les cases qui sont déjà occupées
-                    if ((frogs[cellDropable.frog] == null) || (frogs[cellDropable.frog].player !== Game.currentPlayer))
-                        cellDropable.classList.add("inPath");
+                if (game.frogs[cell.frog] !== game.frogs[cellDropable.frog]) {
+                    // Cas Nénuphar on ignore la dernière position
+                    if (!lastPos(cellDropable.frog))
+                        // Ignore les cases qui sont déjà occupées
+                        if ((game.frogs[cellDropable.frog] == null) || (game.frogs[cellDropable.frog].player !== game.currentPlayer)) {
+                            cellDropable.classList.add("inPath");
+                            count++;
+                        }
                 }
             } else {
                 cellDropable.classList.remove("inPath");
             }
         }
+    }
+
+    // Cas Nénuphar : Si pas de déplacement possible on autorise le retour en arrière.
+    if (game.nenuphar && bVisible && count == 0) {
+        game.dragCell.classList.add("inPath");
     }
 }
 
@@ -213,13 +206,14 @@ function initCells() {
  *
  */
 function dragoverHandler(event) {
+    console.log('dragoverHandler');
     if (this.classList.contains("cellMap"))
-        if (!isStuck(frogs[Game.lastCell.frog]))
-            if (!isFrozen(frogs[Game.lastCell.frog]))
-                if (frogs[Game.lastCell.frog].player == Game.currentPlayer)
-                    if (this.frog !== Game.lastCell.frog)
-                        if ((frogs[this.frog] == null) || (frogs[this.frog].player !== Game.currentPlayer))
-                            if (checkMove(Game.lastCell.frog, this.frog))
+        if (!isStuck(game.frogs[game.dragCell.frog]))
+            if (!isFrozen(game.frogs[game.dragCell.frog]))
+                if (game.frogs[game.dragCell.frog].player == game.currentPlayer)
+                    if (this.frog !== game.dragCell.frog)
+                        if ((game.frogs[this.frog] == null) || (game.frogs[this.frog].player !== game.currentPlayer))
+                            if (checkMove(game.dragCell.frog, this.frog))
                                 event.preventDefault();
 }
 
@@ -227,8 +221,9 @@ function dragoverHandler(event) {
  *
  */
 function dropHandler(event) {
+    console.log('dropHandler');
     if (this.classList.contains("cellMap")) {
-        moveFrog(Game.lastCell, this);
+        moveFrog(game.dragCell, this);
         actionFrog(this);
     }
 }
@@ -249,27 +244,30 @@ function drawFrogs(cells) {
  *
  */
 function moveFrog(beforeCell, afterCell) {
-    Game.players[Game.currentPlayer].moves++;
-    Game.lastCell = beforeCell;
-    Game.currentCell = afterCell;
+    game.players[game.currentPlayer].moves++;
+    game.lastCell = beforeCell;
+    game.currentCell = afterCell;
 
     let oldPos = beforeCell.frog;
     let newPos = afterCell.frog;
-    let frog = frogs[beforeCell.frog];
+    let frog = game.frogs[beforeCell.frog];
+
+    logFrog(frog, 'Move [' + beforeCell.frog + '] >> [' + afterCell.frog + ']');
 
     frog.moves++;
     frog.pos = afterCell.frog;
 
-    if (frogs[newPos] != null && frogs[newPos].player != frogs[oldPos].player) {
+    if (game.frogs[newPos] != null && game.frogs[newPos].player != game.frogs[oldPos].player) {
         frog.kills++;
         killFrog(afterCell);
+        logFrog(frog, 'Kill [' + game.frogs[newPos].name + ']');
     }
 
-    frogs[oldPos] = null;
+    game.frogs[oldPos] = null;
     removeFrog(beforeCell);
     showTile(beforeCell, false);
 
-    frogs[newPos] = frog;
+    game.frogs[newPos] = frog;
     showTile(afterCell, true);
     drawFrog(afterCell);
 
@@ -295,29 +293,31 @@ function getCell(pos) {
  *
  */
 function drawFrog(cell) {
-    if (frogs[cell.frog] !== null) {
+    if (game.frogs[cell.frog] !== null) {
         var pos = cell.frog;
         var img = document.createElement('img');
         var sColor = '';
 
-        sPrefix = (frogs[pos].isQueen) ? 'queen_' : 'frog_';
-        sColor = sPrefix + `${colors[frogs[pos].player]}.png`;
+        sPrefix = (game.frogs[pos].isQueen) ? 'queen_' : 'frog_';
+        sColor = sPrefix + `${colors[game.frogs[pos].player]}.png`;
 
         img.src = 'images/' + sColor;
         img.className = 'imgFrog';
         img.draggable = true;
-        img.title = frogs[pos].name;
+        img.title = game.frogs[pos].name;
 
         img.ondragstart = function (event) {
-            Game.lastCell = this.parentNode;
-            let frog = frogs[Game.lastCell.frog];
-            if ((Game.currentPlayer == frog.player) && (!isStuck(frog)) && !isFrozen(frog)) {
-                drawPath(Game.lastCell, true);
+            console.log('ondragstart');
+            game.dragCell = this.parentNode;
+            let frog = game.frogs[game.dragCell.frog];
+            if ((game.currentPlayer == frog.player) && (!isStuck(frog)) && !isFrozen(frog)) {
+                drawPath(game.dragCell, true);
             }
         };
 
         img.ondragend = function (event) {
-            drawPath(Game.lastCell, false);
+            console.log('ondragend');
+            drawPath(game.dragCell, false);
         };
 
         cell.appendChild(img);
@@ -344,12 +344,12 @@ function drawMale(ply) {
     let cssclass = ``;
 
     for (let i = 0; i < 4; i++) {
-        image += `<img src="./images/frog_${Game.players[ply].color}.png" class="extra${Game.players[ply].color}" alt="Extra ${Game.players[ply].color} Frog">`;
+        image += `<img src="./images/frog_${game.players[ply].color}.png" class="extra${game.players[ply].color}" alt="Extra ${game.players[ply].color} Frog">`;
     }
 
     for (let i = 0; i < 6; i++) {
-        if (Game.players[ply].males[i]) { cssclass = `active`; }
-        image += `<img src="./images/mini5${i}.png" id="${Game.players[ply].color + i}" class="mini ${cssclass}" alt="">`;
+        if (game.players[ply].males[i]) { cssclass = `active`; }
+        image += `<img src="./images/mini5${i}.png" id="${game.players[ply].color + i}" class="mini ${cssclass}" alt="">`;
     }
 
     return image;
@@ -361,21 +361,21 @@ function drawMale(ply) {
 function makeTable(array) {
     let table = "";
     var posY = 0;
-    console.log(array);
-    table += '<tr><td class="corner"></td><td id="four" class="four" colspan="8">' + ((Game.nbPlayer == 4) ? drawMale(3) : '') + '</td><td class="corner"></td></tr>';
 
-    for (let y = 0; y < Game.map.mapHeight; y++) {
-        posY = y * Game.map.mapWidth;
+    table += '<tr><td class="corner"></td><td id="four" class="four" colspan="8">' + ((game.nbPlayer == 4) ? drawMale(3) : '') + '</td><td class="corner"></td></tr>';
+
+    for (let y = 0; y < game.map.mapHeight; y++) {
+        posY = y * game.map.mapWidth;
         table += "<tr>";
-        if (y == 0) { table += `<td id="one" class="one" rowspan="${Game.map.mapHeight}">` + drawMale(0) + `</td>`; }
-        for (let x = 0; x < Game.map.mapWidth; x++) {
+        if (y == 0) { table += `<td id="one" class="one" rowspan="${game.map.mapHeight}">` + drawMale(0) + `</td>`; }
+        for (let x = 0; x < game.map.mapWidth; x++) {
             table += `<td id=\"m${posY + x}\" class=\"cellMap b${array[posY + x].back}\"></td>`;
         }
-        if (y == 0) { table += `<td id="three" class="three" rowspan="${Game.map.mapHeight}">` + ((Game.nbPlayer == 2) ? drawMale(1) : drawMale(2)) + `</td>`; }
+        if (y == 0) { table += `<td id="three" class="three" rowspan="${game.map.mapHeight}">` + ((game.nbPlayer == 2) ? drawMale(1) : drawMale(2)) + `</td>`; }
         table += "</tr>";
     }
 
-    table += '<tr><td class="corner"></td><td id="two" class="two" colspan="8">' + ((Game.nbPlayer == 3 || Game.nbPlayer == 4) ? drawMale(1) : '') + '</td><td class="corner"></td></tr>';
+    table += '<tr><td class="corner"></td><td id="two" class="two" colspan="8">' + ((game.nbPlayer == 3 || game.nbPlayer == 4) ? drawMale(1) : '') + '</td><td class="corner"></td></tr>';
 
     return table;
 }
@@ -385,18 +385,18 @@ function makeTable(array) {
 function initPlayers(nbPly) {
     shuffleArray(colors);
     for (let i = 0; i < nbPly; i++) {
-        Game.players[i] = new Player;
-        Game.players[i].color = colors[i];
+        game.players[i] = new Player;
+        game.players[i].color = colors[i];
     }
 }
 /*
  *
  */
 function initFrogs(nbPly) {
-    Game.nbPlayer = nbPly;
+    game.nbPlayer = nbPly;
 
     resetFrogs();
-    switch (Game.nbPlayer) {
+    switch (game.nbPlayer) {
         case 3:
             initFrog('topLeft', 0);
             initFrog('botLeft', 1);
@@ -422,12 +422,12 @@ function newFrog(pos, ply, isQueen) {
     frg.player = ply;
     frg.name = getName();
     frg.isQueen = isQueen;
-    frg.id = Game.nbFrogs++;
+    frg.id = game.nbFrogs++;
     frg.pos = pos;
 
-    Game.players[ply].inGame++;
+    game.players[ply].inGame++;
 
-    frogs[pos] = frg;
+    game.frogs[pos] = frg;
 }
 /*
  *
@@ -456,8 +456,8 @@ function getName() {
  *
  */
 function resetFrogs() {
-    for (let i = 0; i < Game.map.mapSize; i++) {
-        frogs[i] = null;
+    for (let i = 0; i < game.map.mapSize; i++) {
+        game.frogs[i] = null;
     }
 }
 
@@ -465,70 +465,83 @@ function resetFrogs() {
  *
  */
 function resetMap() {
-    for (let x = 0; x < Game.map.mapSize; x++) {
-        Game.map.data[x] = dalles[x];
+    for (let x = 0; x < game.map.mapSize; x++) {
+        game.map.data[x] = dalles[x];
     }
 
-    shuffleArray(Game.map.data);
+    shuffleArray(game.map.data);
+}
+
+/*
+ *
+ */
+function logFrog(frog, msg) {
+    if (game.debug)
+        console.log('T' + game.turn + ' P' + frog.player + ' : <' + frog.name + '> ' + msg);
 }
 
 /*
  *
  */
 function actionFrog(cell) {
-    let type = Game.map.data[cell.frog].type;
-    let frog = frogs[cell.frog];
+    let type = game.map.data[cell.frog].type;
+    let frog = game.frogs[cell.frog];
 
     switch (type) {
         case 0: // Nenuphar
-            Game.nenuphar = true;
+            logFrog(frog, 'Nenuphar');
+            game.nenuphar = true;
             freeze();
             break;
         case 1: // Mosquito
-            if (Game.players[Game.currentPlayer].inGame > 1) {
-                frog.mud = Game.turn + 1;
+            logFrog(frog, 'Mosquito');
+            game.nenuphar = false;
+            if (game.players[game.currentPlayer].inGame > 1) {
+                frog.mud = game.turn + 1;
                 if (isAvailable(frog.player)) {
                     freeze();
                 } else nextPlayer();
             } else nextPlayer();
             break;
         case 2: // Mud
-            frog.mud = Game.turn + (Game.nbPlayer * 2);
+            frog.mud = game.turn + (game.nbPlayer * 2);
+            logFrog(frog, 'Mud T' + frog.mud);
             nextPlayer();
             break;
         case 3: // Pike
+            logFrog(frog, 'Pike');
             if (frog.isQueen) {
                 killPlayer(frog.player);
             } else {
                 killFrog(cell);
-
             }
             nextPlayer();
 
             break;
         case 4: // Reed
+            logFrog(frog, 'Reed');
             nextPlayer();
             break;
         case 5: // Male
+            logFrog(frog, 'Male');
 
-            // (!males[Game.currentPlayer][Game.map.data[cell.frog].data])
             if (frog.isQueen) {
-                if (!Game.players[Game.currentPlayer].males[Game.map.data[cell.frog].data]) {
-                    Game.players[Game.currentPlayer].males[Game.map.data[cell.frog].data] = true;
-                    let element = document.getElementById(colors[Game.currentPlayer] + Game.map.data[cell.frog].data);
+                if (!game.players[game.currentPlayer].males[game.map.data[cell.frog].data]) {
+                    game.players[game.currentPlayer].males[game.map.data[cell.frog].data] = true;
+                    let element = document.getElementById(colors[game.currentPlayer] + game.map.data[cell.frog].data);
                     element.classList.add("active");
-
-                    //drawFrog(cell);
+                    logFrog(frog, 'Birth');
                 }
             }
             nextPlayer();
             break;
         case 6: // Log
+            logFrog(frog, 'Male');
             nextPlayer();
             break;
 
         default:
-            console.log("Unknow Type : " + type);
+            logFrog(frog, "Unknow Type : " + type);
             break;
     }
 
@@ -538,13 +551,13 @@ function actionFrog(cell) {
  *
  */
 function killFrog(cell) {
-    frog = frogs[cell.frog];
+    frog = game.frogs[cell.frog];
 
     if (frog.isQueen) {
         killPlayer(frog.player);
     } else {
-        frogs[cell.frog] = null;
-        Game.players[frog.player].inGame--;
+        game.frogs[cell.frog] = null;
+        game.players[frog.player].inGame--;
         removeFrog(cell);
         showTile(cell, false);
     }
@@ -555,9 +568,9 @@ function killFrog(cell) {
  */
 function killPlayer(ply) {
     var pos = 0;
-    frogs.forEach(frog => {
+    game.frogs.forEach(frog => {
         if (frog !== null && frog.player == ply) {
-            Game.players[ply].inGame--;
+            game.players[ply].inGame--;
             frog = null;
             removeFrog(getCell(pos));
         }
@@ -569,18 +582,17 @@ function killPlayer(ply) {
  *
  */
 function nextPlayer() {
-    Game.currentPlayer = ++Game.currentPlayer % Game.nbPlayer;
-    Game.nenuphar = false;
+    game.currentPlayer = ++game.currentPlayer % game.nbPlayer;
+    game.nenuphar = false;
     freeze();
-    Game.turn++;
+    game.turn++;
 }
 
 /*
  *
  */
 function isStuck(frog) {
-    console.log(frog.mud + ' : ' + Game.turn);
-    if (frog.mud !== 0 && frog.mud > Game.turn) {
+    if (frog.mud !== 0 && frog.mud > game.turn) {
         return true;
     }
 
@@ -591,7 +603,7 @@ function isStuck(frog) {
  *
  */
 function isFrozen(frog) {
-    if (Game.nenuphar && (frog.id !== frogs[Game.currentCell.frog].id)) {
+    if (game.nenuphar && (frog.id !== game.frogs[game.currentCell.frog].id)) {
         return true;
     }
     return false;
@@ -601,15 +613,15 @@ function isFrozen(frog) {
  *
  */
 function freeze() {
-    for (let index = 0; index < frogs.length; index++) {
-        const frog = frogs[index];
+    for (let index = 0; index < game.frogs.length; index++) {
+        const frog = game.frogs[index];
 
         if (frog !== null) {
             let cell = getCell(index);
             if (cell) {
                 let img = cell.querySelector("img");
                 if (img) {
-                    if ((frog.player !== Game.currentPlayer) || isFrozen(frog) || isStuck(frog)) {
+                    if ((frog.player !== game.currentPlayer) || isFrozen(frog) || isStuck(frog)) {
                         img.classList.add("frozen");
                     } else {
                         img.classList.remove("frozen");
@@ -625,8 +637,8 @@ function freeze() {
  */
 function isAvailable(ply) {
     let bAvailable = false;
-    for (let index = 0; index < frogs.length; index++) {
-        const frog = frogs[index];
+    for (let index = 0; index < game.frogs.length; index++) {
+        const frog = game.frogs[index];
         if (frog !== null) {
             if ((frog.player == ply) && !isFrozen(frog) && !isStuck(frog)) {
                 bAvailable = true;
