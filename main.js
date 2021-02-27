@@ -79,6 +79,7 @@ function drawMap() {
     element.insertAdjacentHTML("afterbegin", html);
     cells = initCells();
     drawFrogs(cells);
+    drawMales(game.currentPlayer);
 }
 
 /*
@@ -339,20 +340,21 @@ function shuffleArray(array) {
 /*
  *
  */
-function drawMale(ply) {
+function drawMales(ply) {
     let image = ``;
-    let cssclass = ``;
 
     for (let i = 0; i < 4; i++) {
         image += `<img src="./images/frog_${game.players[ply].color}.png" class="extra${game.players[ply].color}" alt="Extra ${game.players[ply].color} Frog">`;
     }
 
     for (let i = 0; i < 6; i++) {
+        let cssclass = ``;
         if (game.players[ply].males[i]) { cssclass = `active`; }
         image += `<img src="./images/mini5${i}.png" id="${game.players[ply].color + i}" class="mini ${cssclass}" alt="">`;
     }
 
-    return image;
+    let element = document.getElementById("male");
+    element.innerHTML = image;
 }
 
 /*
@@ -362,20 +364,16 @@ function makeTable(array) {
     let table = "";
     var posY = 0;
 
-    table += '<tr><td class="corner"></td><td id="four" class="four" colspan="8">' + ((game.nbPlayer == 4) ? drawMale(3) : '') + '</td><td class="corner"></td></tr>';
+    table += '<tr><td id="male" class="male" colspan="8"></td></tr>';
 
     for (let y = 0; y < game.map.mapHeight; y++) {
         posY = y * game.map.mapWidth;
         table += "<tr>";
-        if (y == 0) { table += `<td id="one" class="one" rowspan="${game.map.mapHeight}">` + drawMale(0) + `</td>`; }
         for (let x = 0; x < game.map.mapWidth; x++) {
             table += `<td id=\"m${posY + x}\" class=\"cellMap b${array[posY + x].back}\"></td>`;
         }
-        if (y == 0) { table += `<td id="three" class="three" rowspan="${game.map.mapHeight}">` + ((game.nbPlayer == 2) ? drawMale(1) : drawMale(2)) + `</td>`; }
         table += "</tr>";
     }
-
-    table += '<tr><td class="corner"></td><td id="two" class="two" colspan="8">' + ((game.nbPlayer == 3 || game.nbPlayer == 4) ? drawMale(1) : '') + '</td><td class="corner"></td></tr>';
 
     return table;
 }
@@ -505,7 +503,7 @@ function actionFrog(cell) {
             break;
         case 2: // Mud
             frog.mud = game.turn + (game.nbPlayer * 2);
-            logFrog(frog, 'Mud T' + frog.mud);
+            logFrog(frog, 'Mud >> T' + frog.mud);
             nextPlayer();
             break;
         case 3: // Pike
@@ -536,7 +534,7 @@ function actionFrog(cell) {
             nextPlayer();
             break;
         case 6: // Log
-            logFrog(frog, 'Male');
+            logFrog(frog, 'Log');
             nextPlayer();
             break;
 
@@ -585,6 +583,7 @@ function nextPlayer() {
     game.currentPlayer = ++game.currentPlayer % game.nbPlayer;
     game.nenuphar = false;
     freeze();
+    drawMales(game.currentPlayer);
     game.turn++;
 }
 

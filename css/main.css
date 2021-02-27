@@ -29,7 +29,7 @@ table {
     background-image: url('../images/back2.png');
 }
 
-.frozen{
+.frozen {
     opacity: 0.6;
 }
 
@@ -41,33 +41,8 @@ table {
     opacity: 1;
 }
 
-.one {
-    /*background-image: url('../images/frog_blue.png');
-    background-repeat: no-repeat;*/
-    vertical-align: top;
-    width: 64px;
-}
-
-.two {
-    /*background-image: url('../images/frog_pink.png');
-    background-repeat: no-repeat;*/
-    /*text-align: center;*/
-    height: 64px;
-}
-
-.three {
-    /*background-image: url('../images/frog_red.png');
-    background-repeat: no-repeat;
-    background-position: bottom;*/
-    vertical-align: bottom;
-    width: 64px;
-}
-
-.four {
-    /*background-image: url('../images/frog_green.png');
-    background-repeat: no-repeat;
-    background-position: right;*/
-    text-align: right;
+.male {
+    text-align: center;
     height: 64px;
 }
 
