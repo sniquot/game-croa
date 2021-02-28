@@ -11,7 +11,7 @@ class Game {
         this.lastCell = null;
         this.nenuphar = false;
         this.currentPlayer = 0;
-        this.nbPlayer = 2;
+        this.nbPlayer = ply;
         this.nbFrogs = 0;
         this.memory = false;
         this.map = {
@@ -98,15 +98,15 @@ function initMales() {
  */
 function checkMove(posBefore, posAfter) {
     const move = [9, 8, 7, 1];
-    var diff = Math.abs(posAfter - posBefore);
-    var bMove = (move.indexOf(diff) >= 0) ? true : false;
+    let diff = Math.abs(posAfter - posBefore);
+    let bMove = (move.indexOf(diff) >= 0) ? true : false;
     if (!bMove) {
         return false;
     }
 
-    var posBx = (posBefore % game.map.mapWidth);
-    var posAx = (posAfter % game.map.mapHeight);
-    var diffx = Math.abs(posBx - posAx);
+    let posBx = (posBefore % game.map.mapWidth);
+    let posAx = (posAfter % game.map.mapHeight);
+    let diffx = Math.abs(posBx - posAx);
     if (diffx > 1)
         return false;
 
@@ -117,7 +117,7 @@ function checkMove(posBefore, posAfter) {
  *
  */
 function showTile(cell, bVisible) {
-    var sType;
+    let sType;
 
     if (!game.memory && bVisible == false)
         return;
@@ -152,8 +152,8 @@ function lastPos(pos) {
  */
 function drawPath(cell, bVisible) {
     console.log('drawPath : ' + cell.frog);
-    var min = cell.frog - 10;
-    var max = cell.frog + 10;
+    let min = cell.frog - 10;
+    let max = cell.frog + 10;
     let count = 0;
 
     if (min < 0)
@@ -251,17 +251,24 @@ function moveFrog(beforeCell, afterCell) {
 
     let oldPos = beforeCell.frog;
     let newPos = afterCell.frog;
-    let frog = game.frogs[beforeCell.frog];
 
-    logFrog(frog, 'Move [' + beforeCell.frog + '] >> [' + afterCell.frog + ']');
+    let frog = game.frogs[oldPos];
+    let frogB = game.frogs[newPos];
+
+    logFrog(frog, 'Move [' + oldPos + '] >> [' + newPos + ']');
 
     frog.moves++;
-    frog.pos = afterCell.frog;
+    frog.pos = newPos;
 
-    if (game.frogs[newPos] != null && game.frogs[newPos].player != game.frogs[oldPos].player) {
+    if (frogB != null && frogB.player != frog.player) {
         frog.kills++;
-        killFrog(afterCell);
-        logFrog(frog, 'Kill [' + game.frogs[newPos].name + ']');
+        if (frogB.isQueen) {
+            killPlayer(frogB.player);
+        }
+        else {
+            killFrog(frogB);
+        }
+        logFrog(frog, 'Kill [' + frogB.name + ']');
     }
 
     game.frogs[oldPos] = null;
@@ -278,7 +285,7 @@ function moveFrog(beforeCell, afterCell) {
  *
  */
 function removeFrog(cell) {
-    var element = cell.querySelector("img");
+    let element = cell.querySelector("img");
     if (element)
         cell.removeChild(element);
 }
@@ -295,9 +302,9 @@ function getCell(pos) {
  */
 function drawFrog(cell) {
     if (game.frogs[cell.frog] !== null) {
-        var pos = cell.frog;
-        var img = document.createElement('img');
-        var sColor = '';
+        let pos = cell.frog;
+        let img = document.createElement('img');
+        let sColor = '';
 
         sPrefix = (game.frogs[pos].isQueen) ? 'queen_' : 'frog_';
         sColor = sPrefix + `${colors[game.frogs[pos].player]}.png`;
@@ -361,8 +368,8 @@ function drawMales(ply) {
  *
  */
 function makeTable(array) {
-    let table = "";
-    var posY = 0;
+    let table = '';
+    let posY = 0;
 
     table += '<tr><td id="male" class="male" colspan="8"></td></tr>';
 
@@ -391,8 +398,6 @@ function initPlayers(nbPly) {
  *
  */
 function initFrogs(nbPly) {
-    game.nbPlayer = nbPly;
-
     resetFrogs();
     switch (game.nbPlayer) {
         case 3:
@@ -442,8 +447,8 @@ function initFrog(pos, ply) {
  * L'élément retourné est retiré de la liste, pour éviter les doublons
  */
 function getName() {
-    var index = Math.floor(Math.random() * names.length);
-    var name = names[index];
+    let index = Math.floor(Math.random() * names.length);
+    let name = names[index];
     names.splice(index, 1);
 
     return name;
@@ -511,7 +516,7 @@ function actionFrog(cell) {
             if (frog.isQueen) {
                 killPlayer(frog.player);
             } else {
-                killFrog(cell);
+                killFrog(frog);
             }
             nextPlayer();
 
@@ -548,29 +553,27 @@ function actionFrog(cell) {
 /*
  *
  */
-function killFrog(cell) {
-    frog = game.frogs[cell.frog];
+function killFrog(frog) {
+    let cell = getCell(frog.pos);
 
-    if (frog.isQueen) {
-        killPlayer(frog.player);
-    } else {
-        game.frogs[cell.frog] = null;
-        game.players[frog.player].inGame--;
-        removeFrog(cell);
-        showTile(cell, false);
-    }
+    game.frogs[frog.frog] = null;
+    game.players[frog.player].inGame--;
+
+    removeFrog(cell);
+    showTile(cell, false);
 }
 
 /*
  *
  */
 function killPlayer(ply) {
-    var pos = 0;
+    let pos = 0;
+
+    game.players[ply].inGame = 0;
+
     game.frogs.forEach(frog => {
         if (frog !== null && frog.player == ply) {
-            game.players[ply].inGame--;
-            frog = null;
-            removeFrog(getCell(pos));
+            killFrog(frog);
         }
         pos++;
     });
