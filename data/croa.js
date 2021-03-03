@@ -1,3 +1,9 @@
+const heartEmoji = String.fromCodePoint(0x2764);
+const heart2Emoji = String.fromCodePoint(0x1F970);
+const frogEmoji = String.fromCodePoint(0x1F438);
+const mosquitoEmoji = String.fromCodePoint(0x1F99F);
+const trophyEmoji = String.fromCodePoint(0x1F3C6);
+
 const PLAYER_ONE = 0;
 const PLAYER_TWO = 1;
 const PLAYER_THREE = 2;
