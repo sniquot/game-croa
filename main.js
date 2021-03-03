@@ -310,6 +310,8 @@ function moveFrog(beforeCell, afterCell) {
 
     if (frogB != null && frogB.player != frog.player) {
         frog.kills++;
+        game.players[frog.player].kills++;
+        game.kills++;
         logFrog(frog, 'Kill <' + frogB.name + '>');
         kill(frogB);
     }
@@ -321,6 +323,8 @@ function moveFrog(beforeCell, afterCell) {
     }
 
     frog.moves++;
+    game.players[frog.player].moves++;
+    game.moves++;
     frog.pos = newPos;
 
     game.frogs[newPos] = frog;
