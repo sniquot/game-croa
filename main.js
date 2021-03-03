@@ -479,6 +479,8 @@ function newFrog(pos, ply, isQueen) {
     frg.id = 'frog' + game.nbFrogs++;
     frg.pos = pos;
 
+    game.players[frg.player].inGame++;
+
     return frg;
 }
 
@@ -489,7 +491,6 @@ function initFrog(pos, ply) {
     for (let i = 0; i < 3; i++) {
         let frog = newFrog(playerConfig[pos][i][0], ply, playerConfig[pos][i][1]);
         game.frogs[frog.pos] = frog;
-        game.players[frog.player].inGame++;
     }
 }
 
@@ -551,7 +552,7 @@ function actionFrog(cell) {
         case 1: // Mosquito
             logFrog(frog, 'Mosquito' + mosquitoEmoji);
             game.nenuphar = false;
-            if (game.players[game.currentPlayer].inGame > 1) {
+            if (game.players[frog.player].inGame > 1) {
                 frog.mud = game.turn + 1;
                 if (isAvailable(frog.player)) {
                     freeze();
