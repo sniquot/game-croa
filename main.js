@@ -7,8 +7,6 @@ class Game {
     constructor(ply) {
         this.debug = true;
         this.turn = 0;
-        this.moves = 0;
-        this.kills = 0;
         this.currentCell = null;
         this.dragCell = null;
         this.dragData = '';
@@ -24,6 +22,15 @@ class Game {
             mapSize: 64,
             data: []
         };
+        this.stats = {
+            games: 0,
+            pikes: 0,
+            moves: 0,
+            kills: 0,
+            moskitos: 0,
+            mud: 0,
+            birth: 0
+        };
         this.players = [];
         this.frogs = [];
     };
@@ -35,12 +42,11 @@ class Game {
 class Frog {
     constructor() {
         this.player = 0;
-        this.moves = 0;
-        this.kills = 0;
         this.isQueen = false;
         this.mud = 0;
         this.pos = 0;
         this.name = '';
+        this.id = '';
     }
 };
 
@@ -51,10 +57,8 @@ class Player {
     constructor() {
         this.frogs = 4;
         this.inGame = 0;
-        this.moves = 0;
         this.birth = null;
         this.color = ``;
-        this.kills = 0;
         this.males = [];
     }
 };
@@ -66,6 +70,9 @@ initGame(2);
  */
 function initGame(ply) {
     game = new Game(ply);
+
+    loadStats();
+    game.stats.games++;
 
     initPlayers(ply);
     initFrogs(ply);
@@ -213,7 +220,7 @@ function drawPath(bVisible) {
                 // Cas Nénuphar on ignore la dernière position
                 if (!lastPos(i)) {
                     // Juste les cases vides ou les joueurs adverses
-                    if (freeSpaceOnCell(i)) {
+                    if (freeSpaceAtPos(i)) {
                         cellDropable.classList.add("inPath");
                         count++;
                     }
@@ -282,10 +289,12 @@ function kill(frog) {
     if (frog.isQueen) {
         killPlayer(frog.player);
         console.log('Player <' + game.players[game.currentPlayer].color + '> is dead!');
+        saveStats();
     }
     else {
         logFrog(frog, 'is dead!');
         killFrog(frog);
+        game.stats.kill++;
     }
 };
 
@@ -293,8 +302,10 @@ function kill(frog) {
  *
  */
 function moveFrog(beforeCell, afterCell) {
-    game.players[game.currentPlayer].moves++;
+    game.stats.moves++;
+
     game.players[game.currentPlayer].birth = null;
+
     game.lastCell = beforeCell;
     game.currentCell = afterCell;
 
@@ -302,14 +313,11 @@ function moveFrog(beforeCell, afterCell) {
     let newPos = afterCell.pos;
 
     let frog = game.dragData;
-    let frogB = getFrogByPos[newPos];
+    let frogB = getFrogByPos(newPos);
 
     logFrog(frog, 'Move [' + oldPos + '] >> [' + newPos + ']');
 
-    if (frogB != null && frogB.player != frog.player) {
-        frog.kills++;
-        game.players[frog.player].kills++;
-        game.kills++;
+    if (frogB != null && frogB.player !== frog.player) {
         logFrog(frog, 'Kill <' + frogB.name + '>');
         kill(frogB);
     }
@@ -317,9 +325,6 @@ function moveFrog(beforeCell, afterCell) {
     removeFrog(frog);
     showTile(oldPos, false);
 
-    frog.moves++;
-    game.players[frog.player].moves++;
-    game.moves++;
     frog.pos = newPos;
 
     showTile(newPos, true);
@@ -477,8 +482,6 @@ function newFrog(pos, ply, isQueen) {
     frg.id = 'frog' + game.nbFrogs++;
     frg.pos = pos;
 
-    game.players[frg.player].inGame++;
-
     return frg;
 }
 
@@ -489,6 +492,7 @@ function initFrog(pos, ply) {
     for (let i = 0; i < 3; i++) {
         let frog = newFrog(playerConfig[pos][i][0], ply, playerConfig[pos][i][1]);
         game.frogs.push(frog);
+        game.players[ply].inGame++;
     }
 }
 
@@ -547,6 +551,7 @@ function actionFrog() {
             break;
         case 1: // Mosquito
             logFrog(frog, 'Mosquito' + mosquitoEmoji);
+            game.stats.moskitos++;
             game.nenuphar = false;
             if (game.players[frog.player].inGame > 1) {
                 frog.mud = game.turn + 1;
@@ -556,12 +561,14 @@ function actionFrog() {
             } else nextPlayer();
             break;
         case 2: // Mud
+            game.stats.mud++;
             frog.mud = game.turn + (game.nbPlayer * 2);
             logFrog(frog, 'Mud >> T' + frog.mud);
             nextPlayer();
             break;
         case 3: // Pike
-            logFrog(frog, 'Pike eat <' + frog.name + '>!');
+            game.stats.pikes++;
+            logFrog(frog, 'Pike eats <' + frog.name + '>!');
             kill(frog);
             nextPlayer();
 
@@ -578,6 +585,7 @@ function actionFrog() {
                 if (!game.players[game.currentPlayer].males[game.map.data[frog.pos].data]) {
                     // Grenouilles en réserve ?
                     if (game.players[game.currentPlayer].frogs > 0) {
+                        game.stats.birth++;
                         game.players[game.currentPlayer].males[game.map.data[frog.pos].data] = true;
                         let element = document.getElementById(colors[game.currentPlayer] + game.map.data[frog.pos].data);
                         element.classList.add("active");
@@ -764,7 +772,7 @@ function countFrogAtPos(i) {
 /*
  *
  */
-function freeSpaceOnCell(i) {
+function freeSpaceAtPos(i) {
     let count = countFrogAtPos(i);
     if (game.map.data[i].type === 6) {
         if (count < 2) {
@@ -777,3 +785,20 @@ function freeSpaceOnCell(i) {
 
     return false;
 }
+
+/*
+ *
+ */
+function saveStats() {
+    localStorage.setItem('data', JSON.stringify(game.stats));
+}
+
+/*
+ *
+ */
+function loadStats() {
+    let data = localStorage.getItem('data');
+    if (data !== null)
+        game.stats = JSON.parse(data);
+}
+
