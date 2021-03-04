@@ -1,3 +1,5 @@
+"use strict";
+
 var game;
 
 /*
@@ -244,7 +246,7 @@ function initCells() {
     let cells = document.getElementsByClassName("cellMap");
     let pos = 0;
 
-    for (cell of cells) {
+    for (let cell of cells) {
         cell.pos = pos++;
         cell.ondragover = dragoverHandler;
         cell.ondrop = dropHandler;
@@ -356,10 +358,9 @@ function getCell(pos) {
 function drawFrog(frog) {
     if (frog !== null) {
         let img = document.createElement('img');
-        let sColor = '';
 
-        sPrefix = (frog.isQueen) ? 'queen_' : 'frog_';
-        sColor = sPrefix + `${colors[frog.player]}.png`;
+        let sPrefix = (frog.isQueen) ? 'queen_' : 'frog_';
+        let sColor = sPrefix + `${colors[frog.player]}.png`;
 
         img.src = 'images/' + sColor;
         img.className = 'imgFrog';
