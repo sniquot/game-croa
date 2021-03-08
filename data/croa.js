@@ -1,13 +1,24 @@
+"use strict";
+
 const heartEmoji = String.fromCodePoint(0x2764);
 const heart2Emoji = String.fromCodePoint(0x1F970);
 const frogEmoji = String.fromCodePoint(0x1F438);
 const mosquitoEmoji = String.fromCodePoint(0x1F99F);
 const trophyEmoji = String.fromCodePoint(0x1F3C6);
+const queenEmoji = String.fromCodePoint(0x1F451);
 
 const PLAYER_ONE = 0;
 const PLAYER_TWO = 1;
 const PLAYER_THREE = 2;
 const PLAYER_FOUR = 3;
+
+const TYPE_NENUPHAR = 0;
+const TYPE_MOSQUITO = 1;
+const TYPE_MUD = 2;
+const TYPE_PIKE = 3;
+const TYPE_REED = 4;
+const TYPE_MALE = 5;
+const TYPE_LOG = 6;
 
 const colors = ['blue', 'red', 'green', 'pink'];
 

@@ -35,6 +35,7 @@ class Game {
         };
         this.players = [];
         this.frogs = [];
+        this.logs = [];
     };
 };
 
@@ -148,7 +149,7 @@ function showTile(pos, bVisible) {
 
     game.map.data[pos].visible = bVisible;
     if (game.map.data[pos].visible) {
-        if (game.map.data[pos].type === 5) {
+        if (game.map.data[pos].type === TYPE_MALE) {
             sType = 'type' + (game.map.data[pos].type) + (game.map.data[pos].data);
         } else {
             sType = 'type' + (game.map.data[pos].type);
@@ -314,8 +315,23 @@ function moveFrog(beforeCell, afterCell) {
     let oldPos = beforeCell.pos;
     let newPos = afterCell.pos;
 
+    let type = game.map.data[oldPos].type;
+
     let frog = game.dragData;
     let frogB = getFrogByPos(newPos);
+
+    if (type === TYPE_LOG) {
+        let count = countFrogAtPos(newPos);
+        if (count !== 0) {
+            if (count === 1 && frogB.isQueen) {
+                kill(frogB);
+            }
+            else if (count === 2) {
+                kill(frogB);
+            }
+
+        }
+    }
 
     logFrog(frog, 'Move [' + oldPos + '] >> [' + newPos + ']');
 
@@ -533,8 +549,11 @@ function resetMap() {
  *
  */
 function logFrog(frog, msg) {
+    let log = 'T' + game.turn + ' P' + frog.player + ' : ' + (frog.isQueen ? queenEmoji + ' ' : '') + '<' + frog.name + '> ' + msg;
     if (game.debug)
-        console.log('T' + game.turn + ' P' + frog.player + ' : ' + (frog.isQueen ? 'Queen ' : '') + '<' + frog.name + '> ' + msg);
+        console.log(log);
+    game.logs.push(log);
+    drawLog();
 }
 
 /*
@@ -545,12 +564,12 @@ function actionFrog() {
     let type = game.map.data[frog.pos].type;
 
     switch (type) {
-        case 0: // Nenuphar
+        case TYPE_NENUPHAR:
             logFrog(frog, 'Nenuphar');
             game.nenuphar = true;
             freeze();
             break;
-        case 1: // Mosquito
+        case TYPE_MOSQUITO:
             logFrog(frog, 'Mosquito' + mosquitoEmoji);
             game.stats.moskitos++;
             game.nenuphar = false;
@@ -561,24 +580,24 @@ function actionFrog() {
                 } else nextPlayer();
             } else nextPlayer();
             break;
-        case 2: // Mud
+        case TYPE_MUD:
             game.stats.mud++;
             frog.mud = game.turn + (game.nbPlayer * 2);
             logFrog(frog, 'Mud >> T' + frog.mud);
             nextPlayer();
             break;
-        case 3: // Pike
+        case TYPE_PIKE:
             game.stats.pikes++;
             logFrog(frog, 'Pike eats <' + frog.name + '>!');
             kill(frog);
             nextPlayer();
 
             break;
-        case 4: // Reed
+        case TYPE_REED:
             logFrog(frog, 'Reed');
             nextPlayer();
             break;
-        case 5: // Male
+        case TYPE_MALE:
             logFrog(frog, 'Male');
 
             if (frog.isQueen) {
@@ -605,7 +624,7 @@ function actionFrog() {
             }
             nextPlayer();
             break;
-        case 6: // Log
+        case TYPE_LOG:
             logFrog(frog, 'Log');
             nextPlayer();
             break;
@@ -690,6 +709,7 @@ function nextPlayer() {
         freeze();
     }
     drawMales(game.currentPlayer);
+
 }
 
 /*
@@ -775,7 +795,7 @@ function countFrogAtPos(i) {
  */
 function freeSpaceAtPos(i) {
     let count = countFrogAtPos(i);
-    if (game.map.data[i].type === 6) {
+    if (game.map.data[i].type === TYPE_LOG) {
         if (count < 2) {
             return true;
         }
@@ -791,7 +811,7 @@ function freeSpaceAtPos(i) {
  *
  */
 function saveStats() {
-    localStorage.setItem('data', JSON.stringify(game.stats));
+    localStorage.setItem('data', btoa(JSON.stringify(game.stats)));
 }
 
 /*
@@ -799,7 +819,56 @@ function saveStats() {
  */
 function loadStats() {
     let data = localStorage.getItem('data');
-    if (data !== null)
-        game.stats = JSON.parse(data);
+    if (data !== null) {
+        try {
+            game.stats = JSON.parse(atob(data));
+        } catch (e) {
+            console.log('loadStats : ' + e.message);
+        }
+    }
 }
 
+/*
+ *
+ */
+function clearStats() {
+    localStorage.removeItem('data');
+}
+
+/*
+ *
+ */
+function clearStats() {
+    localStorage.removeItem('data');
+}
+
+/*
+ *
+ */
+function drawLog() {
+    let end = game.logs.length;
+    let start = end - 3;
+
+    if (start < 0) {
+        start = 0;
+    }
+
+    let ligne = end - start;
+
+    let html = '';
+
+    for (let i = start; i < end; i++) {
+        html += '<p class="log' + (ligne--) + '">' + htmlEntities(game.logs[i]) + '</p>';
+    }
+
+    let element = document.getElementById("log");
+    element.textContent = ``;
+    element.insertAdjacentHTML("afterbegin", html);
+}
+
+/*
+ *
+ */
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}

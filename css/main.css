@@ -57,3 +57,25 @@ table {
     background-repeat: no-repeat;
     background-position: center;
 }
+
+.logBox {
+    position: relative;
+    padding: .75rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: .25rem;
+    width: 1024px;
+    height:100px;
+
+    color:#155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.log3 {
+    opacity: .25;
+}
+
+.log2 {
+    opacity: .5;
+}
+
