@@ -1,6 +1,7 @@
 "use strict";
 
 var game;
+var stats;
 
 /*
  *
@@ -18,21 +19,7 @@ class Game {
         this.nbPlayer = ply;
         this.nbFrogs = 0;
         this.memory = false;
-        this.map = {
-            mapHeight: 8,
-            mapWidth: 8,
-            mapSize: 64,
-            data: []
-        };
-        this.stats = {
-            games: 0,
-            pikes: 0,
-            moves: 0,
-            kills: 0,
-            moskitos: 0,
-            mud: 0,
-            birth: 0
-        };
+        this.map = null;
         this.players = [];
         this.frogs = [];
         this.logs = [];
@@ -63,6 +50,34 @@ class Player {
         this.birth = null;
         this.color = ``;
         this.males = [];
+        this.computer = false;
+    }
+};
+
+/*
+ *
+ */
+class Map {
+    constructor() {
+        this.mapHeight = 8;
+        this.mapWidth = 8;
+        this.mapSize = this.mapHeight * this.mapWidth;
+        this.data = []
+    }
+};
+
+/*
+ *
+ */
+class Stats {
+    constructor() {
+        this.games = 0;
+        this.pikes = 0;
+        this.moves = 0;
+        this.kills = 0;
+        this.moskitos = 0;
+        this.mud = 0;
+        this.birth = 0;
     }
 };
 
@@ -74,21 +89,30 @@ initGame(2);
 function initGame(ply) {
     game = new Game(ply);
 
-    loadStats();
-    game.stats.games++;
-
+    initStats();
     initPlayers(ply);
     initFrogs(ply);
     initMales();
     initMap();
 
     freeze();
+
+    stats.games++;
+}
+
+/*
+ *
+ */
+function initStats() {
+    stats = new Stats();
+    loadStats();
 }
 
 /*
  *
  */
 function initMap() {
+    game.map = new Map();
     resetMap();
     drawMap();
 }
@@ -129,7 +153,7 @@ function checkMove(posBefore, posAfter) {
     }
 
     let posBx = (posBefore % game.map.mapWidth);
-    let posAx = (posAfter % game.map.mapHeight);
+    let posAx = (posAfter % game.map.mapWidth);
     let diffx = Math.abs(posBx - posAx);
     if (diffx > 1)
         return false;
@@ -297,7 +321,7 @@ function kill(frog) {
     else {
         logFrog(frog, 'is dead!');
         killFrog(frog);
-        game.stats.kill++;
+        stats.kill++;
     }
 };
 
@@ -305,7 +329,7 @@ function kill(frog) {
  *
  */
 function moveFrog(beforeCell, afterCell) {
-    game.stats.moves++;
+    stats.moves++;
 
     game.players[game.currentPlayer].birth = null;
 
@@ -571,7 +595,7 @@ function actionFrog() {
             break;
         case TYPE_MOSQUITO:
             logFrog(frog, 'Mosquito' + mosquitoEmoji);
-            game.stats.moskitos++;
+            stats.moskitos++;
             game.nenuphar = false;
             if (game.players[frog.player].inGame > 1) {
                 frog.mud = game.turn + 1;
@@ -581,13 +605,13 @@ function actionFrog() {
             } else nextPlayer();
             break;
         case TYPE_MUD:
-            game.stats.mud++;
+            stats.mud++;
             frog.mud = game.turn + (game.nbPlayer * 2);
             logFrog(frog, 'Mud >> T' + frog.mud);
             nextPlayer();
             break;
         case TYPE_PIKE:
-            game.stats.pikes++;
+            stats.pikes++;
             logFrog(frog, 'Pike eats <' + frog.name + '>!');
             kill(frog);
             nextPlayer();
@@ -605,7 +629,7 @@ function actionFrog() {
                 if (!game.players[game.currentPlayer].males[game.map.data[frog.pos].data]) {
                     // Grenouilles en réserve ?
                     if (game.players[game.currentPlayer].frogs > 0) {
-                        game.stats.birth++;
+                        stats.birth++;
                         game.players[game.currentPlayer].males[game.map.data[frog.pos].data] = true;
                         let element = document.getElementById(colors[game.currentPlayer] + game.map.data[frog.pos].data);
                         element.classList.add("active");
@@ -811,7 +835,7 @@ function freeSpaceAtPos(i) {
  *
  */
 function saveStats() {
-    localStorage.setItem('data', btoa(JSON.stringify(game.stats)));
+    localStorage.setItem('data', btoa(JSON.stringify(stats)));
 }
 
 /*
@@ -821,7 +845,7 @@ function loadStats() {
     let data = localStorage.getItem('data');
     if (data !== null) {
         try {
-            game.stats = JSON.parse(atob(data));
+            stats = JSON.parse(atob(data));
         } catch (e) {
             console.log('loadStats : ' + e.message);
         }
@@ -871,4 +895,83 @@ function drawLog() {
  */
 function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+
+/*
+ *
+ */
+function saveGame(slot) {
+    let saveSlot = 'save' + slot;
+    //    if (localStorage.getItem(saveSlot) === null) {
+    localStorage.setItem(saveSlot, btoa(JSON.stringify(game)));
+    //}
+}
+
+/*
+ *
+ */
+function loadGame(slot) {
+    let saveSlot = 'save' + slot;
+    let save = null;
+    //    if (localStorage.getItem(saveSlot) === null) {
+    save = localStorage.getItem(saveSlot);
+    save = JSON.parse(atob(save));
+
+    console.log(save);
+    //}
+}
+
+/*
+ *
+ */
+function deleteGame(slot) {
+    let saveSlot = 'save' + slot;
+    localStorage.removeItem(saveSlot);
+}
+
+/*
+ * Retourne la première grenouille disponible.
+ * 
+ */
+function comp_find_frog_available() {
+}
+
+/*
+ * Retoune une case disponible
+ * Avec prise de risque ou pas.
+ */
+function comp_move(risk) {
+}
+
+/*
+ * Retourne la case la plus proche de la destination
+ */
+function comp_move_to(pos) {
+}
+
+/*
+ * Retourne la case la plus proche de la destination
+ */
+function comp_find_closer_type(type) {
+}
+
+/*
+ * Retourne la distance entre deux positions
+ */
+function comp_count_dist(fromPos, toPos) {
+
+    let posFx = (fromPos % game.map.mapWidth);
+    let posTx = (toPos % game.map.mapWidth);
+    let diffx = Math.abs(posFx - posTx);
+
+    let posFy = Math.floor(fromPos / game.map.mapHeight);
+    let posTy = Math.floor(toPos / game.map.mapHeight);
+    let diffy = Math.abs(posFy - posTy);
+
+    if (diffx > diffy) return diffx;
+    else if (diffx < diffy) return diffy;
+
+    return 0;
+
 }

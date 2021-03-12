@@ -49,13 +49,14 @@ table {
 }
 
 .cellMap {
-    width: 132px;
-    height: 132px;
-    border: 3px solid white;
+    width: 128px;
+    height: 128px;
+    border: 1px solid black;
     border-radius: 4px;
     box-shadow: 4px 4px 2px 1px rgba(0, 0, 0, .2);
+
     background-repeat: no-repeat;
-    background-position: center;
+    background-size: contain;
 }
 
 .logBox {
@@ -79,3 +80,47 @@ table {
     opacity: .5;
 }
 
+.modal{
+    display:  none;
+    position:fixed;
+    z-index:1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 8px;
+    box-shadow: 4px 4px 8px green;
+    width: 80%;
+  }
+  .modal-title{
+    border-bottom: 1px solid grey;
+  }
+  .modal-body{
+
+}
+.modal-footer{
+    border-top: 1px solid grey;
+}
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
