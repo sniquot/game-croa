@@ -1,4 +1,5 @@
 "use strict";
+const IMG_PATH = 'assets/images/';
 
 const heartEmoji = String.fromCodePoint(0x2764);
 const heart2Emoji = String.fromCodePoint(0x1F970);

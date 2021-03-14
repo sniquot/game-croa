@@ -101,12 +101,11 @@ table {
     box-shadow: 4px 4px 8px green;
     width: 80%;
   }
-  .modal-title{
+  
+  .modal-header{
     border-bottom: 1px solid grey;
   }
-  .modal-body{
 
-}
 .modal-footer{
     border-top: 1px solid grey;
 }

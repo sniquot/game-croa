@@ -81,6 +81,15 @@ class Stats {
     }
 };
 
+/*
+ *
+ */
+class Computer {
+    constructor() {
+    }
+};
+
+
 initGame(2);
 
 /*
@@ -178,7 +187,7 @@ function showTile(pos, bVisible) {
         } else {
             sType = 'type' + (game.map.data[pos].type);
         }
-        cell.style.backgroundImage = "url('images/" + sType + ".png')";
+        cell.style.backgroundImage = "url('" + images + sType + ".png')";
 
     } else {
         cell.style.backgroundImage = "";
@@ -402,7 +411,7 @@ function drawFrog(frog) {
         let sPrefix = (frog.isQueen) ? 'queen_' : 'frog_';
         let sColor = sPrefix + `${colors[frog.player]}.png`;
 
-        img.src = 'images/' + sColor;
+        img.src = IMG_PATH + sColor;
         img.className = 'imgFrog';
         img.draggable = true;
         img.title = frog.name;
@@ -443,13 +452,13 @@ function drawMales(ply) {
     let image = ``;
 
     for (let i = 0; i < game.players[ply].frogs; i++) {
-        image += `<img src="./images/frog_${game.players[ply].color}.png" class="extra${game.players[ply].color}" alt="Extra ${game.players[ply].color} Frog">`;
+        image += `<img src="` + IMG_PATH + `frog_${game.players[ply].color}.png" class="extra${game.players[ply].color}" alt="Extra ${game.players[ply].color} Frog">`;
     }
 
     for (let i = 0; i < 6; i++) {
         let cssclass = ``;
         if (game.players[ply].males[i]) { cssclass = `active`; }
-        image += `<img src="./images/mini5${i}.png" id="${game.players[ply].color + i}" class="mini ${cssclass}" alt="Male ${game.players[ply].color} ${cssclass}">`;
+        image += `<img src="` + IMG_PATH + `mini5${i}.png" id="${game.players[ply].color + i}" class="mini ${cssclass}" alt="Male ${game.players[ply].color} ${cssclass}">`;
     }
 
     let element = document.getElementById("male");
