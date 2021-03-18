@@ -19,15 +19,15 @@
 <body>
     <div>
         <ul>
-            <li><button type="button" onclick="initGame(2);" data-micron="bounce">2 Joueurs</button></li>
-            <li><button type="button" onclick="initGame(3);" data-micron="bounce">3 Joueurs</button></li>
-            <li><button type="button" onclick="initGame(4);" data-micron="bounce">4 Joueurs</button></li>
+            <li><button type="button" onclick="game.init(2);" data-micron="bounce">2 Joueurs</button></li>
+            <li><button type="button" onclick="game.init(3);" data-micron="bounce">3 Joueurs</button></li>
+            <li><button type="button" onclick="game.init(4);" data-micron="bounce">4 Joueurs</button></li>
         </ul>
     </div>
     <div>
         <ul>
-            <li><button type="button" onclick="saveGame(1);" data-micron="bounce">Save 01</button></li>
-            <li><button type="button" onclick="loadGame(1);" data-micron="bounce">Load 01</button></li>
+            <li><button type="button" onclick="game.saveGame(1);" data-micron="bounce">Save 01</button></li>
+            <li><button type="button" onclick="game.loadGame(1);" data-micron="bounce">Load 01</button></li>
         </ul>
     </div>
     <div>
@@ -41,7 +41,6 @@
             <div class="modal-title">
                 <span class="close">&times;</span>
                 <p>Some text in the Modal..</p>
-
             </div>
             <div class="modal-body">
                 <p>body</p>

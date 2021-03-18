@@ -4,50 +4,54 @@
  *
  */
 class Map {
-    mapHeight = 8;
-    mapWidth = 8;
-    mapSize = this.mapHeight * this.mapWidth;
-    data = []
+    static mapHeight = 8;
+    static mapWidth = 8;
+    static mapSize = Map.mapHeight * Map.mapWidth;
+
+    static data = [];
+    static cells = [];
 
     /*
      *
      */
-    reset() {
-        for (let x = 0; x < this.mapSize; x++) {
-            this.data[x] = dalles[x];
+    static reset() {
+        for (let x = 0; x < Map.mapSize; x++) {
+            Map.data[x] = dalles[x];
         }
 
-        Stuff.shuffleArray(game.map.data);
+        Stuff.shuffleArray(Map.data);
     }
 
     /*
      *
      */
-    drawMap() {
-        let html = this.makeTable(game.map.data);
+    static drawMap() {
+        let html = Map.makeTable();
         let element = document.getElementById("map");
         element.textContent = ``;
         element.insertAdjacentHTML("afterbegin", html);
-        this.initCells();
+        Map.initCells();
     }
+
     /*
      *
      */
-    initCells() {
+    static initCells() {
         let cells = document.getElementsByClassName("cellMap");
         let pos = 0;
 
         for (let cell of cells) {
             cell.pos = pos++;
-            cell.ondragover = this.dragoverHandler;
-            cell.ondrop = this.dropHandler;
+            cell.ondragover = Map.dragoverHandler;
+            cell.ondrop = Map.dropHandler;
+            Map.cells.push(cell);
         };
     }
 
     /*
      *
      */
-    dragoverHandler(event) {
+    static dragoverHandler(event) {
         console.log('dragoverHandler');
         if (this.classList.contains("inPath")) {
             event.preventDefault();
@@ -57,28 +61,28 @@ class Map {
     /*
      *
      */
-    dropHandler(event) {
+    static dropHandler(event) {
         console.log('dropHandler');
         if (this.classList.contains("inPath")) {
-            moveFrog(game.dragCell, this);
-            actionFrog();
+            Game.moveFrog(this.pos);
+            Game.actionFrog(this.pos);
         }
     }
 
     /*
      *
      */
-    makeTable(array) {
+    static makeTable() {
         let table = '';
         let posY = 0;
 
-        table += '<tr><td id="male" class="male" colspan="' + this.mapWidth + '"></td></tr>';
+        table += '<tr><td id="male" class="male" colspan="' + Map.mapWidth + '"></td></tr>';
 
-        for (let y = 0; y < this.mapHeight; y++) {
-            posY = y * this.mapWidth;
+        for (let y = 0; y < Map.mapHeight; y++) {
+            posY = y * Map.mapWidth;
             table += "<tr>";
-            for (let x = 0; x < this.mapWidth; x++) {
-                table += `<td id=\"m${posY + x}\" class=\"cellMap b${array[posY + x].back}\"></td>`;
+            for (let x = 0; x < Map.mapWidth; x++) {
+                table += `<td id=\"m${posY + x}\" class=\"cellMap b${Map.data[posY + x].back}\"></td>`;
             }
             table += "</tr>";
         }
@@ -90,30 +94,50 @@ class Map {
      *
      */
     static getCell(pos) {
-        return document.getElementById("m" + pos);
+        return Map.cells[pos];
     }
 
     /*
      *
      */
-    showTile(pos, bVisible) {
+    static showTile(pos, bVisible) {
         let sType;
         let cell = Map.getCell(pos);
 
-        if (!game.memory && bVisible == false)
+        if (!Game.memory && bVisible == false)
             return;
 
-        this.data[pos].visible = bVisible;
-        if (this.data[pos].visible) {
-            if (this.data[pos].type === TYPE_MALE) {
-                sType = 'type' + (this.data[pos].type) + (this.data[pos].data);
+        Map.data[pos].visible = bVisible;
+        if (Map.data[pos].visible) {
+            if (Map.data[pos].type === TYPE_MALE) {
+                sType = 'type' + (Map.data[pos].type) + (Map.data[pos].data);
             } else {
-                sType = 'type' + (this.data[pos].type);
+                sType = 'type' + (Map.data[pos].type);
             }
             cell.style.backgroundImage = "url('" + IMG_PATH + sType + ".png')";
 
         } else {
             cell.style.backgroundImage = "";
         }
+    }
+
+    /*
+     *
+     */
+    static checkMove(posBefore, posAfter) {
+        const move = [9, 8, 7, 1];
+        let diff = Math.abs(posAfter - posBefore);
+        let bMove = (move.indexOf(diff) >= 0) ? true : false;
+        if (!bMove) {
+            return false;
+        }
+
+        let posBx = (posBefore % Map.mapWidth);
+        let posAx = (posAfter % Map.mapWidth);
+        let diffx = Math.abs(posBx - posAx);
+        if (diffx > 1)
+            return false;
+
+        return true;
     }
 };

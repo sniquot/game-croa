@@ -4,28 +4,18 @@
  *
  */
 class Frog {
-    constructor() {
-        this.player = 0;
-        this.isQueen = false;
-        this.mud = 0;
-        this.pos = 0;
-        this.name = '';
-        this.id = '';
-    }
+    static count = 0;
 
-    /*
- *
- */
-    static newFrog(pos, ply, isQueen) {
-        let frg = new Frog;
+    mud = 0;
+    name = '';
+    id = '';
 
-        frg.player = ply;
-        frg.name = Frog.getName();
-        frg.isQueen = isQueen;
-        frg.id = 'frog' + game.nbFrogs++;
-        frg.pos = pos;
-
-        return frg;
+    constructor(pos, ply, isQueen) {
+        this.player = ply;
+        this.isQueen = isQueen;
+        this.pos = pos;
+        this.id = 'frog' + Frog.count++;
+        this.name = Frog.getName();
     }
 
     /*
@@ -37,101 +27,121 @@ class Frog {
 
         return name;
     }
-};
 
-
-
-
-
-/*
- *
- */
-function getFrogById(id) {
-    for (let i = 0; i < game.frogs.length; i++) {
-        if (game.frogs[i].id === id)
-            return game.frogs[i];
-    }
-    return null;
-}
-
-/*
- *
- */
-function getFrogByPos(pos) {
-    for (let i = 0; i < game.frogs.length; i++) {
-        if (game.frogs[i].pos === pos)
-            return game.frogs[i];
-    }
-    return null;
-}
-
-/*
- *
- */
-function drawFrogs() {
-    game.frogs.forEach(frog => {
-        removeFrog(frog);
-        drawFrog(frog);
-    });
-}
-
-/*
- *
- */
-function removeFrog(frog) {
-    if (frog !== null) {
-        let img = document.getElementById(frog.id);
+    /*
+     *
+     */
+    remove() {
+        let img = document.getElementById(this.id);
         if (img)
             img.parentElement.removeChild(img);
     }
-}
-
-/*
- *
- */
-function drawFrog(frog) {
-    if (frog !== null) {
+    /*
+     *
+     */
+    draw() {
         let img = document.createElement('img');
 
-        let sPrefix = (frog.isQueen) ? 'queen_' : 'frog_';
-        let sColor = sPrefix + `${colors[frog.player]}.png`;
+        let sPrefix = (this.isQueen) ? 'queen_' : 'frog_';
+        let sColor = sPrefix + `${colors[this.player]}.png`;
 
         img.src = IMG_PATH + sColor;
         img.className = 'imgFrog';
         img.draggable = true;
-        img.title = frog.name;
-        img.id = frog.id;
+        img.title = this.name;
+        img.id = this.id;
 
-        img.ondragstart = function (event) {
-            console.log('ondragstart');
-            game.dragData = getFrogById(event.target.id);
-            game.dragCell = this.parentNode;
-            drawPath(true);
+        img.ondragstart = (event) => {
+            //console.log('ondragstart');
+            Game.dragPos = this.pos;
+            this.drawPath(true);
         };
 
-        img.ondragend = function (event) {
-            console.log('ondragend');
-            drawPath(false);
+        img.ondragend = (event) => {
+            //console.log('ondragend');
+            this.drawPath(false);
         };
 
-        Map.getCell(frog.pos).appendChild(img);
+        Map.getCell(this.pos).appendChild(img);
     }
-}
+
+    /*
+    *
+    */
+    isStuck() {
+        if (this.mud !== 0 && this.mud > Game.turn) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /*
+     *
+     */
+    drawPath(bVisible) {
+
+        if (bVisible && (Game.currentPlayer.id !== this.player || !this.aBirth() || this.isStuck() || !this.isNenuphar())) {
+            return;
+        }
+
+        let min = this.pos - 10;
+        let max = this.pos + 10;
+        let count = 0;
+
+        if (min < 0)
+            min = 0;
+        if (max > Map.mapSize)
+            max = Map.mapSize;
+
+        for (let i = min; i < max; i++) {
+            let cellDropable = Map.getCell(i);
+            if (bVisible) {
+                if (Map.checkMove(this.pos, i)) {
+                    // Cas Nénuphar on ignore la dernière position
+                    if (!(Game.nenuphar !== null && Game.nenuphar.id === this.id)) {
+                        // Juste les cases vides ou les joueurs adverses
+                        if (Game.freeSpaceAtPos(i)) {
+                            cellDropable.classList.add("inPath");
+                            count++;
+                        }
+                    }
+                }
+            } else {
+                cellDropable.classList.remove("inPath");
+            }
+        }
+
+        // Cas Nénuphar : Si pas de déplacement possible on autorise le retour en arrière.
+        if (Game.nenuphar !== null && bVisible && count == 0) {
+            Map.getCell(Game.lasPos).classList.add("inPath");
+        }
+    }
 
 
+    /*
+    *
+    */
+    isNenuphar() {
+        if (Game.nenuphar !== null) {
+            if (this.id === Game.nenuphar.id)
+                return true;
+            else return false;
+        }
+        return true;
+    }
 
-/*
- *
- */
-function killFrog(frog) {
-    game.frogs = game.frogs.filter(frg => {
-        if (frg.id === frog.id) {
-            game.players[frog.player].inGame--;
-            game.players[frog.player].frogs++;
+    /*
+     *
+     */
+    aBirth() {
+        if (Game.birth !== null && Game.currentPlayer.id === Game.birth.player && Game.currentPlayer.id === this.player) {
+            if (this.pos === Game.birth.pos) {
+                return true;
+            } else return false;
+        }
+        return true;
+    }
 
-            removeFrog(frg);
-            showTile(frg.pos, false);
-            return false;
-        } else return true;
-    });
-}
+};
+

@@ -32,7 +32,8 @@ class Stats {
                 this.moves = data.moves;
                 this.kills = data.kills;
                 this.moskitos = data.moskitos;
-                this.muds = data.births;
+                this.muds = data.muds;
+                this.births = data.births;
             } catch (e) {
                 console.log('loadStats : ' + e.message);
             }

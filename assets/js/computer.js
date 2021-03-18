@@ -39,12 +39,12 @@ class Computer {
      */
     comp_count_dist(fromPos, toPos) {
 
-        let posFx = (fromPos % game.map.mapWidth);
-        let posTx = (toPos % game.map.mapWidth);
+        let posFx = (fromPos % Map.mapWidth);
+        let posTx = (toPos % Map.mapWidth);
         let diffx = Math.abs(posFx - posTx);
 
-        let posFy = Math.floor(fromPos / game.map.mapHeight);
-        let posTy = Math.floor(toPos / game.map.mapHeight);
+        let posFy = Math.floor(fromPos / Map.mapHeight);
+        let posTy = Math.floor(toPos / Map.mapHeight);
         let diffy = Math.abs(posFy - posTy);
 
         if (diffx > diffy) return diffx;
