@@ -8,10 +8,6 @@ class Game {
     static nbFrogs = 0;
     static nbPlayer = 2;
 
-    static currentCell = null;
-    static dragCell = null;
-    static lastCell = null;
-
     static lasPos = 0;
     static dragPos = 0;
 
@@ -247,7 +243,7 @@ class Game {
             Game.stats.save();
         }
         else {
-            logFrog(frog, 'is dead! ' + deathEmoji);
+            Game.logFrog(frog, 'is dead! ' + deathEmoji);
             Game.killFrog(frog);
             Game.stats.kills++;
         }
@@ -263,7 +259,7 @@ class Game {
                 Game.players[frog.player].frogs++;
 
                 frog.removeFrog();
-                showTile(frog.pos, false);
+                Map.showTile(frog.pos, false);
                 return false;
             } else return true;
         });

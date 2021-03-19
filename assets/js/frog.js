@@ -54,12 +54,12 @@ class Frog {
         img.ondragstart = (event) => {
             //console.log('ondragstart');
             Game.dragPos = this.pos;
-            this.drawPath(true);
+            this.drawPath(this.pos, true);
         };
 
         img.ondragend = (event) => {
             //console.log('ondragend');
-            this.drawPath(false);
+            this.drawPath(Game.dragPos, false);
         };
 
         Map.getCell(this.pos).appendChild(img);
@@ -79,14 +79,14 @@ class Frog {
     /*
      *
      */
-    drawPath(bVisible) {
+    drawPath(pos, bVisible) {
 
         if (bVisible && (Game.currentPlayer.id !== this.player || !this.aBirth() || this.isStuck() || !this.isNenuphar())) {
             return;
         }
 
-        let min = this.pos - 10;
-        let max = this.pos + 10;
+        let min = pos - 10;
+        let max = pos + 10;
         let count = 0;
 
         if (min < 0)
@@ -97,9 +97,9 @@ class Frog {
         for (let i = min; i < max; i++) {
             let cellDropable = Map.getCell(i);
             if (bVisible) {
-                if (Map.checkMove(this.pos, i)) {
+                if (Map.checkMove(pos, i)) {
                     // Cas Nénuphar on ignore la dernière position
-                    if (!(Game.nenuphar !== null && Game.nenuphar.id === this.id)) {
+                    if (!Game.nenuphar || (Game.nenuphar !== null && Game.nenuphar.id === this.id)) {
                         // Juste les cases vides ou les joueurs adverses
                         if (Game.freeSpaceAtPos(i)) {
                             cellDropable.classList.add("inPath");
