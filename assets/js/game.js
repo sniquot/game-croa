@@ -26,31 +26,35 @@ class Game {
      *
      */
     static init(ply, memory, debug) {
-        console.log('Game.init');
+        //console.log('Game.init');
         Game.debug = debug;
         Game.nbPlayer = ply;
         Game.memory = memory;
 
-        Stuff.shuffleArray(colors);
-        Stuff.shuffleArray(names);
+        //Stuff.shuffleArray(colors);
+        //Stuff.shuffleArray(names);
 
         Game.initStats();
-        Game.initPlayers();
-        Game.initFrogs();
-        Game.initMales();
-        Game.initMap();
 
-        Game.freeze();
+        if (!Game.loadGame(0)) {
 
-        Game.stats.games++;
+            Game.initPlayers();
+            Game.initFrogs();
+            Game.initMales();
+            Game.initMap();
+
+            Game.freeze();
+
+            Game.stats.games++;
+        }
+
     }
-
 
     /*
      *
      */
     static initStats() {
-        console.log('Game.initStats');
+        //console.log('Game.initStats');
         Game.stats = new Stats();
         Game.stats.load();
     }
@@ -59,7 +63,7 @@ class Game {
      *
      */
     static initPlayers() {
-        console.log('Game.initPlayers');
+        //console.log('Game.initPlayers');
         for (let i = 0; i < Game.nbPlayer; i++) {
             Game.players[i] = new Player(colors[i], false);
         }
@@ -70,7 +74,7 @@ class Game {
      *
      */
     static initFrogs() {
-        console.log('Game.initFrogs');
+        //console.log('Game.initFrogs');
         Game.frogs = [];
         switch (Game.nbPlayer) {
             case 3:
@@ -94,7 +98,7 @@ class Game {
      *
      */
     static initFrog(pos, ply) {
-        console.log('Game.initFrog');
+        //console.log('Game.initFrog');
         for (let i = 0; i < 3; i++) {
             let frog = new Frog(playerConfig[pos][i][0], ply, playerConfig[pos][i][1]);
             Game.frogs.push(frog);
@@ -106,7 +110,7 @@ class Game {
      *
      */
     static initMales() {
-        console.log('Game.initMales');
+        //console.log('Game.initMales');
         for (let i = 0; i < Game.nbPlayer; i++) {
             Game.players[i].resetMales();
         }
@@ -116,7 +120,7 @@ class Game {
      *
      */
     static initMap() {
-        console.log('Game.initMap');
+        //console.log('Game.initMap');
         Map.reset();
         Map.drawMap();
         Game.drawFrogs();
@@ -127,8 +131,20 @@ class Game {
     /*
      *
      */
+    static getPlayerById(id) {
+        //console.log('Game.getPlayerById');
+        for (let i = 0; i < Game.players.length; i++) {
+            if (Game.players[i].id === id)
+                return Game.players[i];
+        }
+        return null;
+    }
+
+    /*
+     *
+     */
     static getFrogById(id) {
-        console.log('Game.getFrogById');
+        //console.log('Game.getFrogById');
         for (let i = 0; i < Game.frogs.length; i++) {
             if (Game.frogs[i].id === id)
                 return Game.frogs[i];
@@ -140,7 +156,7 @@ class Game {
      *
      */
     static getFrogByPos(pos) {
-        console.log('Game.getFrogByPos');
+        //console.log('Game.getFrogByPos');
         for (let i = 0; i < Game.frogs.length; i++) {
             if (Game.frogs[i].pos === pos)
                 return Game.frogs[i];
@@ -152,7 +168,7 @@ class Game {
      *
      */
     static drawFrogs() {
-        console.log('Game.drawFrogs');
+        //console.log('Game.drawFrogs');
         Game.frogs.forEach(frog => {
             frog.remove();
             frog.draw();
@@ -209,13 +225,10 @@ class Game {
      */
     static freeze() {
         Game.frogs.forEach(frog => {
-            let img = document.getElementById(frog.id);
-            if (img) {
-                if ((frog.player !== Game.currentPlayer.id) || frog.isStuck() || !frog.isNenuphar() || !frog.aBirth()) {
-                    img.classList.add("frozen");
-                } else {
-                    img.classList.remove("frozen");
-                }
+            if ((frog.player !== Game.currentPlayer.id) || frog.isStuck() || !frog.isNenuphar() || !frog.aBirth()) {
+                frog.img.classList.add("frozen");
+            } else {
+                frog.img.classList.remove("frozen");
             }
         });
     }
@@ -226,7 +239,7 @@ class Game {
     static isAvailable() {
         let bAvailable = false;
         Game.frogs.forEach(frog => {
-            if ((frog.player === Game.currentPlayer.id) && frog.isNenuphar() && frog.isStuck()) {
+            if ((frog.player === Game.currentPlayer.id) && frog.isNenuphar() && !frog.isStuck()) {
                 bAvailable = true;
             }
         });
@@ -258,7 +271,7 @@ class Game {
                 Game.players[frog.player].inGame--;
                 Game.players[frog.player].frogs++;
 
-                frog.removeFrog();
+                frog.remove();
                 Map.showTile(frog.pos, false);
                 return false;
             } else return true;
@@ -293,11 +306,12 @@ class Game {
      *
      */
     static nextPlayer() {
+        Game.nenuphar = null;
         if (!Game.isAlive()) {
             console.log('Game finish, player <' + Game.currentPlayer.color + '> win! ' + trophyEmoji);
+            Game.deleteGame(0);
         } else {
             Game.turn++;
-            Game.nenuphar = null;
 
             // Ignore les joueurs morts.
             do {
@@ -341,12 +355,15 @@ class Game {
         Game.logs.push(log);
         Game.drawLog();
     }
+
     /*
      *
      */
     static moveFrog(newPos) {
         Game.stats.moves++;
-        Game.birth = null;
+
+        if (Game.birth !== null && Game.birth.player === Game.currentPlayer.id)
+            Game.birth = null;
 
         Game.lastPos = Game.dragPos;
         let type = Map.data[Game.lastPos].type;
@@ -381,7 +398,6 @@ class Game {
 
         Map.showTile(newPos, true);
         frog.draw();
-
     }
 
     /*
@@ -393,11 +409,13 @@ class Game {
 
         switch (type) {
             case TYPE_NENUPHAR:
+                Stuff.animate(newPos, 'shake');
                 Game.logFrog(frog, 'Nenuphar');
                 Game.nenuphar = frog;
                 Game.freeze();
                 break;
             case TYPE_MOSQUITO:
+                Stuff.animate(newPos, 'blink');
                 Game.logFrog(frog, 'Mosquito ' + mosquitoEmoji);
                 Game.stats.moskitos++;
                 Game.nenuphar = null;
@@ -409,12 +427,15 @@ class Game {
                 } else Game.nextPlayer();
                 break;
             case TYPE_MUD:
+                Stuff.animate(newPos, 'jelly');
                 Game.stats.muds++;
                 frog.mud = Game.turn + (Game.nbPlayer * 2);
+                frog.img.classList.add("mud");
                 Game.logFrog(frog, 'Mud >> T' + frog.mud);
                 Game.nextPlayer();
                 break;
             case TYPE_PIKE:
+                Stuff.animate(newPos, 'pop');
                 Game.stats.pikes++;
                 Game.logFrog(frog, 'Pike eats <' + frog.name + '>!');
                 Game.kill(frog);
@@ -422,11 +443,13 @@ class Game {
 
                 break;
             case TYPE_REED:
+                Stuff.animate(newPos, 'tada');
                 Game.logFrog(frog, 'Reed');
                 Game.nextPlayer();
                 break;
             case TYPE_MALE:
-                Game.logFrog(frog, 'Male');
+                Stuff.animate(newPos, 'groove');
+                Game.logFrog(frog, 'Male ' + heartEmoji);
 
                 if (frog.isQueen) {
                     // Male déjà activé ?
@@ -442,8 +465,8 @@ class Game {
                             Game.birth = birth;
 
                             Game.players[frog.player].frogs--;
-                            Game.logFrog(birth, 'was born!' + heart2Emoji);
-                            Game.drawFrog(birth);
+                            Game.logFrog(birth, 'was born! ' + heart2Emoji);
+                            birth.draw();
                         }
                         else
                             Game.logFrog(frog, 'no more frogs available!');
@@ -453,6 +476,7 @@ class Game {
                 Game.nextPlayer();
                 break;
             case TYPE_LOG:
+                Stuff.animate(newPos, 'swing');
                 Game.logFrog(frog, 'Log');
                 Game.nextPlayer();
                 break;
@@ -464,5 +488,128 @@ class Game {
 
     }
 
+    /*
+     *
+     */
+    static save(slot) {
+        if (!(slot >= 0 && slot <= 9))
+            return false;
+
+        let saveData = {
+            turn: Game.turn,
+            nbFrogs: Game.nbFrogs,
+            nbPlayer: Game.nbPlayer,
+            lastPos: Game.lastPos,
+            dragPos: Game.dragPos,
+            nenuphar: (Game.nenuphar) ? Game.nenuphar.id : null,
+            birth: (Game.birth) ? Game.birth.id : null,
+            currentPlayer: (Game.currentPlayer) ? Game.currentPlayer.id : null,
+            players: Game.players,
+            frogs: Game.frogs,
+            //logs: Game.logs,
+            debug: Game.debug,
+            memory: Game.memory,
+            map: Map.data
+        };
+        let saveJson = JSON.stringify(saveData)
+        try {
+            localStorage.setItem('save' + slot, btoa(saveJson));
+            return true;
+
+        } catch (e) {
+            console.log('Game.save : ' + e.message);
+        }
+        return false;
+    }
+
+    /*
+     *
+     */
+    static load(slot) {
+        if (!(slot >= 0 && slot <= 9))
+            return false;
+
+        let load = localStorage.getItem('save' + slot);
+
+        if (load !== null) {
+            try {
+                load = JSON.parse(atob(load));
+
+                Game.turn = load.turn;
+                Game.nbFrogs = load.nbFrogs;
+                Game.nbPlayer = load.nbPlayer;
+                Game.lastPos = load.lastPos;
+                Game.dragPos = load.dragPos;
+
+                Game.players = [];
+                load.players.forEach(player => {
+                    let ply = new Player(player.color, false);
+                    ply.frogs = player.frogs;
+                    ply.inGame = player.inGame;
+                    ply.males = player.males;
+                    ply.id = player.id;
+                    Game.players.push(ply);
+                });
+
+                Game.frogs = [];
+                load.frogs.forEach(frog => {
+                    let frg = new Frog(frog.pos, frog.player, frog.isQueen);
+                    frg.name = frog.name;
+                    frg.mud = frog.mud;
+                    frg.id = frog.id;
+                    Game.frogs.push(frg);
+                });
+
+                if (load.nenuphar !== null) {
+                    Game.nenuphar = Game.getFrogById(load.nenuphar);
+                }
+
+                if (load.birth !== null) {
+                    Game.birth = Game.getFrogById(load.birth);
+                }
+                console.log(load.currentPlayer);
+                if (load.currentPlayer !== null) {
+                    Game.currentPlayer = Game.getPlayerById(load.currentPlayer);
+                }
+
+                //Game.logs = save.logs;
+                Game.debug = load.debug;
+
+                Game.memory = load.memory;
+                Map.data = load.map;
+
+                return load;
+            } catch (e) {
+                console.log('Game.load : ' + e.message);
+            }
+        }
+        return false;
+    }
+
+    /*
+     *
+     */
+    static deleteGame(slot) {
+        if (!(slot >= 0 && slot <= 9))
+            return false;
+        localStorage.removeItem('save' + slot);
+        return true;
+    }
+
+    /*
+     *
+     */
+    static loadGame(slot) {
+        if (Game.load(slot)) {
+            Map.drawMap();
+            Map.showTiles();
+            Game.drawFrogs();
+            Game.currentPlayer.drawMales();
+
+            Game.freeze();
+            return true;
+        }
+        return false;
+    }
 };
 

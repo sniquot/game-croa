@@ -18,6 +18,7 @@ Fonctionnel :
 - Menu dynamique
 - Sauvegarde partie
 - Multijoueur
+- Computer AI
 
 
 Technique :

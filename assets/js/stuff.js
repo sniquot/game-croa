@@ -19,4 +19,11 @@ class Stuff {
             array[j] = temp;
         }
     }
+
+    /*
+     *
+     */
+    static animate(pos, interaction) {
+        micron.getEle('#m' + pos).interaction(interaction).duration(".45").timing("ease-out");
+    }
 }

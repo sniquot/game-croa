@@ -52,7 +52,7 @@ class Map {
      *
      */
     static dragoverHandler(event) {
-        console.log('dragoverHandler');
+        //console.log('dragoverHandler');
         if (this.classList.contains("inPath")) {
             event.preventDefault();
         }
@@ -62,10 +62,11 @@ class Map {
      *
      */
     static dropHandler(event) {
-        console.log('dropHandler');
+        //console.log('dropHandler');
         if (this.classList.contains("inPath")) {
             Game.moveFrog(this.pos);
             Game.actionFrog(this.pos);
+            Game.save(0);
         }
     }
 
@@ -76,15 +77,15 @@ class Map {
         let table = '';
         let posY = 0;
 
-        table += '<tr><td id="male" class="male" colspan="' + Map.mapWidth + '"></td></tr>';
+        table += '<div id="male" class="male"></div>';
 
         for (let y = 0; y < Map.mapHeight; y++) {
             posY = y * Map.mapWidth;
-            table += "<tr>";
+            table += '<div class="divRow">';
             for (let x = 0; x < Map.mapWidth; x++) {
-                table += `<td id=\"m${posY + x}\" class=\"cellMap b${Map.data[posY + x].back}\"></td>`;
+                table += `<div id=\"m${posY + x}\" class=\"divCell cellMap b${Map.data[posY + x].back}\" ></div>`;
             }
-            table += "</tr>";
+            table += "</div>";
         }
 
         return table;
@@ -119,6 +120,27 @@ class Map {
         } else {
             cell.style.backgroundImage = "";
         }
+    }
+
+    /*
+     *
+     */
+    static showTiles() {
+        let sType;
+        for (let i = 0; i < Map.data.length; i++) {
+            if (Map.data[i].visible) {
+                if (Map.data[i].type === TYPE_MALE) {
+                    sType = 'type' + (Map.data[i].type) + (Map.data[i].data);
+                } else {
+                    sType = 'type' + (Map.data[i].type);
+                }
+                Map.cells[i].style.backgroundImage = "url('" + IMG_PATH + sType + ".png')";
+            }
+            else {
+                Map.cells[i].style.backgroundImage = "";
+            }
+        }
+
     }
 
     /*

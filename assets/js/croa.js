@@ -74,408 +74,408 @@ const dalles = [{ // Nenuphar
     "type": 0,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 0,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, { // Mosquito
     "type": 1,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 1,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, { // Mud
     "type": 2,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 2,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 2,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 2,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, { // Pike
     "type": 3,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 3,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 3,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 3,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, { // Reed
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 4,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, { // Male
     "type": 5,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 0,
     "data": 1,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 0,
     "data": 2,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 0,
     "data": 3,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 0,
     "data": 4,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 0,
     "data": 5,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 1,
     "data": 1,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 1,
     "data": 2,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 2,
     "data": 3,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 2,
     "data": 4,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 5,
     "back": 2,
     "data": 5,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, { // Log of wood
     "type": 6,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 6,
     "back": 0,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 6,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 6,
     "back": 1,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 6,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }, {
     "type": 6,
     "back": 2,
     "data": 0,
-    "visible": false,
-    "busy": []
+    "visible": false
+
 }];

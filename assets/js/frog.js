@@ -6,15 +6,19 @@
 class Frog {
     static count = 0;
 
-    mud = 0;
+    mud = 0; // 
     name = '';
-    id = '';
+    id = 0;
+    img = null;
+    pos = 0;
+    isQueen = false;
+    player = 0;
 
     constructor(pos, ply, isQueen) {
         this.player = ply;
         this.isQueen = isQueen;
         this.pos = pos;
-        this.id = 'frog' + Frog.count++;
+        this.id = Frog.count++;
         this.name = Frog.getName();
     }
 
@@ -32,10 +36,10 @@ class Frog {
      *
      */
     remove() {
-        let img = document.getElementById(this.id);
-        if (img)
-            img.parentElement.removeChild(img);
+        if (this.img !== null)
+            this.img.parentElement.removeChild(this.img);
     }
+
     /*
      *
      */
@@ -49,18 +53,18 @@ class Frog {
         img.className = 'imgFrog';
         img.draggable = true;
         img.title = this.name;
-        img.id = this.id;
 
         img.ondragstart = (event) => {
-            //console.log('ondragstart');
+            console.log('ondragstart');
             Game.dragPos = this.pos;
             this.drawPath(this.pos, true);
         };
 
         img.ondragend = (event) => {
-            //console.log('ondragend');
+            console.log('ondragend');
             this.drawPath(Game.dragPos, false);
         };
+        this.img = img;
 
         Map.getCell(this.pos).appendChild(img);
     }
@@ -69,10 +73,11 @@ class Frog {
     *
     */
     isStuck() {
+        let pos = Map.getCell(this.pos);
         if (this.mud !== 0 && this.mud > Game.turn) {
             return true;
         }
-
+        this.img.classList.remove("mud");
         return false;
     }
 
@@ -80,7 +85,7 @@ class Frog {
      *
      */
     drawPath(pos, bVisible) {
-
+        console.log('drawPath');
         if (bVisible && (Game.currentPlayer.id !== this.player || !this.aBirth() || this.isStuck() || !this.isNenuphar())) {
             return;
         }
