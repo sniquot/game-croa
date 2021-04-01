@@ -55,13 +55,13 @@ class Frog {
         img.title = this.name;
 
         img.ondragstart = (event) => {
-            console.log('ondragstart');
+            //console.log('ondragstart');
             Game.dragPos = this.pos;
             this.drawPath(this.pos, true);
         };
 
         img.ondragend = (event) => {
-            console.log('ondragend');
+            //console.log('ondragend');
             this.drawPath(Game.dragPos, false);
         };
         this.img = img;
@@ -85,7 +85,7 @@ class Frog {
      *
      */
     drawPath(pos, bVisible) {
-        console.log('drawPath');
+        //console.log('drawPath');
         if (bVisible && (Game.currentPlayer.id !== this.player || !this.aBirth() || this.isStuck() || !this.isNenuphar())) {
             return;
         }

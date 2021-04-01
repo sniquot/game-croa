@@ -249,15 +249,18 @@ class Game {
     /*
      *
      */
-    static kill(frog) {
-        if (frog.isQueen) {
+    static kill(frogA, frogB) {
+        if (frogA)
+            Game.logFrog(frogA, 'Kill <' + frogB.name + '>');
+
+        if (frogB.isQueen) {
             console.log('Player <' + Game.currentPlayer.color + '> is dead! ' + deathEmoji);
-            Game.killPlayer(frog.player);
+            Game.killPlayer(frogB.player);
             Game.stats.save();
         }
         else {
-            Game.logFrog(frog, 'is dead! ' + deathEmoji);
-            Game.killFrog(frog);
+            Game.logFrog(frogB, 'is dead! ' + deathEmoji);
+            Game.killFrog(frogB);
             Game.stats.kills++;
         }
     };
@@ -282,6 +285,7 @@ class Game {
      *
      */
     static drawLog() {
+        return;
         let end = Game.logs.length;
         let start = end - 3;
 
@@ -316,7 +320,7 @@ class Game {
             // Ignore les joueurs morts.
             do {
                 Game.currentPlayer = Game.players[(Game.currentPlayer.id + 1) % Game.nbPlayer];
-            } while (Game.currentPlayer.inGame === 0);
+            } while (Game.currentPlayer.inGame === 0 || !Game.isAvailable());
 
             Game.freeze();
         }
@@ -371,24 +375,23 @@ class Game {
         let frog = Game.getFrogByPos(Game.lastPos);
         let frogB = Game.getFrogByPos(newPos);
 
+        Game.logFrog(frog, 'Move [' + Game.lastPos + '] >> [' + newPos + ']');
+
         if (type === TYPE_LOG) {
             let count = Game.countFrogAtPos(newPos);
             if (count !== 0) {
                 if (count === 1 && frogB.isQueen) {
-                    Game.kill(frogB);
+                    Game.kill(frog, frogB);
                 }
                 else if (count === 2) {
-                    Game.kill(frogB);
+                    Game.kill(frog, frogB);
                 }
 
             }
         }
 
-        Game.logFrog(frog, 'Move [' + Game.lastPos + '] >> [' + newPos + ']');
-
         if (frogB != null && frogB.player !== frog.player) {
-            Game.logFrog(frog, 'Kill <' + frogB.name + '>');
-            Game.kill(frogB);
+            Game.kill(frog, frogB);
         }
 
         frog.remove();
@@ -419,7 +422,7 @@ class Game {
                 Game.logFrog(frog, 'Mosquito ' + mosquitoEmoji);
                 Game.stats.moskitos++;
                 Game.nenuphar = null;
-                if (Game.players[frog.player].inGame > 1) {
+                if (Game.currentPlayer.inGame > 1) {
                     frog.mud = Game.turn + 1;
                     if (Game.isAvailable()) {
                         Game.freeze();
@@ -438,7 +441,7 @@ class Game {
                 Stuff.animate(newPos, 'pop');
                 Game.stats.pikes++;
                 Game.logFrog(frog, 'Pike eats <' + frog.name + '>!');
-                Game.kill(frog);
+                Game.kill(null, frog);
                 Game.nextPlayer();
 
                 break;
@@ -464,7 +467,8 @@ class Game {
                             Game.frogs.push(birth);
                             Game.birth = birth;
 
-                            Game.players[frog.player].frogs--;
+                            Game.currentPlayer.frogs--;
+                            Game.currentPlayer.inGame++;
                             Game.logFrog(birth, 'was born! ' + heart2Emoji);
                             birth.draw();
                         }
@@ -567,7 +571,7 @@ class Game {
                 if (load.birth !== null) {
                     Game.birth = Game.getFrogById(load.birth);
                 }
-                console.log(load.currentPlayer);
+
                 if (load.currentPlayer !== null) {
                     Game.currentPlayer = Game.getPlayerById(load.currentPlayer);
                 }

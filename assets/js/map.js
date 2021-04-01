@@ -77,9 +77,7 @@ class Map {
         let table = '';
         let posY = 0;
 
-        table += '<div id="male" class="male"></div>';
-
-        for (let y = 0; y < Map.mapHeight; y++) {
+           for (let y = 0; y < Map.mapHeight; y++) {
             posY = y * Map.mapWidth;
             table += '<div class="divRow">';
             for (let x = 0; x < Map.mapWidth; x++) {
