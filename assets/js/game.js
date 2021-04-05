@@ -9,7 +9,7 @@ class Game {
     static nbPlayer = 2;
 
     static lasPos = 0;
-    static dragPos = 0;
+    static dragFrog = 0;
 
     static nenuphar = null;
     static birth = null;
@@ -369,10 +369,10 @@ class Game {
         if (Game.birth !== null && Game.birth.player === Game.currentPlayer.id)
             Game.birth = null;
 
-        Game.lastPos = Game.dragPos;
+        Game.lastPos = Game.dragFrog.pos;
         let type = Map.data[Game.lastPos].type;
 
-        let frog = Game.getFrogByPos(Game.lastPos);
+        let frog = Game.dragFrog;
         let frogB = Game.getFrogByPos(newPos);
 
         Game.logFrog(frog, 'Move [' + Game.lastPos + '] >> [' + newPos + ']');
@@ -504,7 +504,7 @@ class Game {
             nbFrogs: Game.nbFrogs,
             nbPlayer: Game.nbPlayer,
             lastPos: Game.lastPos,
-            dragPos: Game.dragPos,
+            dragFrog: Game.dragFrog.id,
             nenuphar: (Game.nenuphar) ? Game.nenuphar.id : null,
             birth: (Game.birth) ? Game.birth.id : null,
             currentPlayer: (Game.currentPlayer) ? Game.currentPlayer.id : null,
@@ -543,7 +543,7 @@ class Game {
                 Game.nbFrogs = load.nbFrogs;
                 Game.nbPlayer = load.nbPlayer;
                 Game.lastPos = load.lastPos;
-                Game.dragPos = load.dragPos;
+                Game.dragFrog = Game.getPlayerById(load.dragFrog);
 
                 Game.players = [];
                 load.players.forEach(player => {

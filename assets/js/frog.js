@@ -55,14 +55,14 @@ class Frog {
         img.title = this.name;
 
         img.ondragstart = (event) => {
-            //console.log('ondragstart');
-            Game.dragPos = this.pos;
+            console.log('ondragstart');
+            Game.dragFrog = this;
             this.drawPath(this.pos, true);
         };
 
         img.ondragend = (event) => {
-            //console.log('ondragend');
-            this.drawPath(Game.dragPos, false);
+            console.log('ondragend');
+            this.drawPath(Game.lastPos, false);
         };
         this.img = img;
 
