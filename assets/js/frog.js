@@ -104,7 +104,7 @@ class Frog {
             if (bVisible) {
                 if (Map.checkMove(pos, i)) {
                     // Cas Nénuphar on ignore la dernière position
-                    if (!Game.nenuphar || (Game.nenuphar !== null && Game.nenuphar.id === this.id)) {
+                    if (!Game.nenuphar || (i !== Game.lastPos)) {
                         // Juste les cases vides ou les joueurs adverses
                         if (Game.freeSpaceAtPos(i)) {
                             cellDropable.classList.add("inPath");
